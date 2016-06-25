@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+	<head>
+	  <meta charset="utf-8">
+		<meta name="author" content="ninezero">
+
+		<!-- Cascading Style Sheets -->
+		<link href="css/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="css/flat-ui.min.css" rel="stylesheet" media="screen">
+		<link href="css/animate.css" rel="stylesheet" media="screen">
+		<link href="css/custom.css" rel="stylesheet" media="screen">
+
+	</head>
+
+	<body>
+
+    <section>
+
+			<ul class="nav nav-tabs nav-justified">
+				<li class="active"><a href="#list" data-toggle="tab"><span class="fui-list"/></a></li>
+				<li><a href="#new" data-toggle="tab"><span class="fui-new"/></a></li>
+			</ul>
+
+			<div class="tab-content">
+
+				<div class="tab-pane" id="list">
+				</div>
+
+				<div class="tab-pane" id="new">
+					<div class="bs-callout bs-callout-info">
+						<div class="row">
+							<div class="col-xs-10">
+								<form>
+									<div class="form-group">
+										<select class="form-control select select-inverse" id="select-category">
+											<option>FILE</option>
+											<option>SITE</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<input class="form-control" id="input-rule" type="text" placeholder="rule"/>
+									</div>
+									<div class="form-group">
+										<input class="form-control" id="input-path" type="text" placeholder="path"/>
+									</div>
+								</form>
+							</div>
+							<div class="col-xs-2">
+								<button class="btn btn-block btn-success btn-xs" id="btn-submit"><span class="fui-check"/></button>
+							</div>
+						</div>
+		      </div>
+				</div>
+
+			</div>
+
+    </section>
+
+		<!-- Templates -->
+		<div class="bs-callout bs-callout-default hidden" id="template" active="false">
+			<div class="row">
+				<div class="col-xs-10">
+					<p><strong id="index">#INDEX</strong> <span class="label label-info" id="category">:CATEGORY</span></p>
+					<h4 id="rule">RULE</h4>
+					<span class="fui-home"/> / <span id="path">PATH</span> / <code id="path-rule">RULE</code>
+				</div>
+				<div class="col-xs-2">
+					<div class="dropdown">
+						<button class="btn btn-block btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+							<span class="fui-gear"/>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-right">
+							<li><a href="#">EDIT</a></li>
+							<li><a href="#">DELETE</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="js/jquery-2.0.3.min.js"></script>
+		<script src="js/flat-ui.min.js"></script>
+
+    <script type="text/javascript">
+		$.fn.extend({
+		    animateCss: function (animationName) {
+		        var animationEnd = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
+		        $(this).addClass("animated " + animationName).one(animationEnd, function() {
+		            $(this).removeClass("animated " + animationName);
+		        });
+		    }
+		});
+
+		$("select").select2();
+
+		//temporary value
+		var index = 0;
+
+		$("#btn-submit").on("click", function(){
+
+				let template = $("#template").clone();
+
+				++index;
+
+				template.attr("id", index.toString());
+
+				let category = $("#select-category option:selected").val();
+				let rule = $("#input-rule").val();
+				let path = $("#input-path").val();
+
+				template.find("#index").text("#"+index);
+
+				template.find("#category").text(":"+category);
+				template.find("#rule").text(rule);
+
+				template.find("#path").text(path);
+				template.find("#path-rule").text(rule);
+
+				template.removeClass("hidden");
+				template.addClass("rule-item");
+
+				$(".nav-tabs a[href='#list']").tab("show");
+
+				$("#list").append(template);
+
+				template.animateCss("fadeIn");
+
+				$("section").scrollTop(template.offset().top);
+		});
+
+		/*
+    $(".bs-callout").on("click", function(){
+      $(".bs-callout").attr("active", "false");
+      $(".bs-callout").attr("class", "bs-callout bs-callout-default");
+
+      $(this).attr("active", "true");
+      $(this).attr("class", "bs-callout bs-callout-primary");
+    });
+		*/
+    </script>
+	</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "recycling",
+  "description": "download recycling?",
+  "version": "0.0.1",
+
+  "browser_action": {
+    "default_icon": "img/noun_319358_cc.png",
+    "default_popup": "setting_panel.html"
+  },
+  "background": {
+    "scripts": ["engine.js"]
+  },
+  "permissions": ["downloads"]
+}
