@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+	<head>
+	  <meta charset="utf-8">
+		<meta name="author" content="laoshanlong">
+
+		<!-- CSS -->
+		<link href="css/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="css/flat-ui.min.css" rel="stylesheet" media="screen">
+		<link href="css/animate.css" rel="stylesheet" media="screen">
+		<link href="css/bs-callout.css" rel="stylesheet" media="screen">
+		<link href="css/page/control.css" rel="stylesheet" media="screen">
+
+	</head>
+
+	<body>
+
+    <section>
+
+			<!-- Rule -->
+			<div id="rule">
+
+				<div class="bs-callout bs-callout-success" id="empty">
+					<h4>EMPTY!</h4>
+					add new rule
+				</div>
+
+			</div>
+
+			<!-- Bottom -->
+			<div id="bottom">
+
+				<button class="btn btn-block btn-embossed btn-primary" id="btn-add-rule">
+					<span class="fui-new"/>
+				</button>
+
+			</div>
+
+    </section>
+
+		<!-- Template -->
+		<div class="hidden" id="templates">
+
+			<div class="bs-callout bs-callout-default" id="template-rule" active="false">
+				<div class="row">
+					<div class="col-xs-10">
+						<p><strong id="index">#INDEX</strong> <span class="label label-info" id="category">:CATEGORY</span></p>
+						<h4 id="rule">RULE</h4>
+						<span class="fui-home"/> / <span id="path">PATH</span> / <code id="path-rule">RULE</code>
+					</div>
+					<div class="col-xs-2">
+						<div class="dropdown">
+							<button class="btn btn-block btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
+								<span class="fui-gear"/>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a href="#">EDIT</a></li>
+								<li><a href="#">DELETE</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="bs-callout bs-callout-info" id="template-edit">
+				<div class="row">
+					<div class="col-xs-10">
+						<form>
+							<div class="form-group">
+								<select class="form-control select select-inverse" id="select-category">
+									<option>FILE</option>
+									<option>SITE</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<input class="form-control" id="input-rule" type="text" placeholder="rule"/>
+							</div>
+							<div class="form-group">
+								<input class="form-control" id="input-path" type="text" placeholder="path"/>
+							</div>
+						</form>
+					</div>
+					<div class="col-xs-2">
+						<button class="btn btn-block btn-success btn-xs" id="btn-submit"><span class="fui-check"/></button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Script -->
+		<script src="js/jquery-2.0.3.min.js"></script>
+		<script src="js/flat-ui.min.js"></script>
+		<script src="js/page/control.js"></script>
+	</body>
+</html>
