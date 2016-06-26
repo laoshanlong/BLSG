@@ -4,15 +4,46 @@ $.fn.extend({
         $(this).addClass("animated " + animationName).one(animationEnd, function() {
             $(this).removeClass("animated " + animationName);
 
-            if(callback === undefined)
+            if(callback === undefined){
               return;
+            }
 
-            callback($(this));
+            callback();
         });
+    },
+    validateEditData: function(){
+      if($(this).hasClass("rule-edit") == false){
+        return false;
+      }
+
+      let rule = $(this).find("#input-rule").val();
+      if(rule === undefined || rule === ""){
+        return false
+      }
+
+      let path = $(this).find("#input-path").val();
+      if(path === undefined || path === ""){
+        return false;
+      }
+
+      return true;
+    },
+    extractEditData: function(){
+      if($(this).validateEditData() == false){
+        return undefined;
+      }
+
+      let target = $(this).attr("data-edit-target");
+      let category = $(this).find("#select-category option:selected").val();
+      let rule = $(this).find("#input-rule").val();
+      let path = $(this).find("#input-path").val();
+
+      return {target: target, category: category, rule: rule, path: path};
     }
 });
 
 $("select").select2();
+$("input[data-toggle='switch']").bootstrapSwitch();
 
 /*
 $("#btn-add-rule").on("click", function(){
@@ -39,55 +70,93 @@ $("#btn-add-rule").on("click", function(){
 */
 
 $("#btn-add-rule").on("click", function(){
-  let templateEdit = $("#template-edit").clone();
+  let editor = $("#template-edit").clone();
 
-  templateEdit.css("margin-top", $("#btn-add-rule").css("margin-top"));
-  templateEdit.css("margin-bottom", $("#btn-add-rule").css("margin-bottom"));
+  editor.find("#btn-submit").on("click", {editor: editor}, onSubmitAddRule);
 
-  let outerHeight = $("#btn-add-rule").outerHeight();
-  let marginBottom = parseInt($("#btn-add-rule").css("margin-bottom").slice(0, -2));
+  exchangeFromTo($(this), editor);
+});
 
-  console.log(outerHeight);
-  console.log(marginBottom);
+function onSubmitAddRule(event){
+  let editor = event.data.editor;
 
-  $("#btn-add-rule").css("margin-bottom", (outerHeight + marginBottom) * -1);
-
-  $("#btn-add-rule").animateCss("fadeOutRight", function(animated){
-    animated.addClass("hidden");
+  exchangeFromTo(editor, $("#btn-add-rule"), function(){
+    editor.detach();
   });
 
-  templateEdit.insertAfter("#btn-add-rule");
-  templateEdit.animateCss("fadeInLeft");
-});
+  if(editor.validateEditData() == false){
+    return;
+  }
 
-//temporary value
-var index = 0;
+  let rule = $("#template-rule").clone();
+  let index = $(".rule-collection > .rule-item").length;
 
-$("#btn-submit").on("click", function(){
-    let templateEdit = $("#template-edit").clone();
+  rule.attr("id", "rule-item-" + index);
 
-    ++index;
+  let editData = editor.extractEditData();
 
-    templateEdit.attr("id", index.toString());
+  rule.attr("data-rule-category", editData.category);
+  rule.attr("data-rule-rule", editData.rule);
+  rule.attr("data-rule-path", editData.path);
 
-    let category = $("#select-category option:selected").val();
-    let rule = $("#input-rule").val();
-    let path = $("#input-path").val();
+  rule.find("#category").text(":" + editData.category);
+  rule.find("#rule").text(editData.rule);
+  rule.find("#path").text(editData.path);
+  rule.find("#path-rule").text(editData.rule);
 
-    templateEdit.find("#index").text("#"+index);
+  let empty = $("#empty");
 
-    templateEdit.find("#category").text(":"+category);
-    templateEdit.find("#rule").text(rule);
+  if(empty.hasClass("hidden") == false){
+    exchangeFromTo(empty, rule);
+  }
+  else{
+    rule.appendTo(".rule-collection");
+    rule.animateCss("fadeInLeft");
+  }
+}
 
-    templateEdit.find("#path").text(path);
-    templateEdit.find("#path-rule").text(rule);
+function exchangeFromTo(exchangeFrom, exchangeTo, callback){
+  exchangeFrom.removeClass("hidden");
+  exchangeTo.removeClass("hidden");
 
-    $("#rule").append(template);
+  let head = exchangeFrom;
+  let tail = exchangeTo;
 
-    templateEdit.animateCss("fadeInRight");
+  exchangeTo.detach().insertAfter(exchangeFrom);
 
-    $("section").scrollTop(templateEdit.offset().top);
-});
+  if(exchangeFrom.outerHeight() > exchangeTo.outerHeight()){
+    head = exchangeTo;
+    tail = exchangeFrom;
+
+    exchangeFrom.detach().insertAfter(exchangeTo);
+  }
+
+  exchangeTo.css("margin-top", exchangeFrom.css("margin-top"));
+  exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
+
+  let outerHeight = head.outerHeight();
+  let marginBottom = parseInt(head.css("margin-bottom").slice(0, -2));
+
+  head.css("margin-bottom", (outerHeight + marginBottom) * -1);
+
+  exchangeFrom.animateCss("fadeOutRight", function(animated){
+    exchangeFrom.addClass("hidden");
+  });
+
+  exchangeTo.animateCss("fadeInLeft", function(animated){
+    if(exchangeTo == head){
+      exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
+    }
+
+    exchangeFrom.removeAttr("style");
+
+    if(callback === undefined){
+      return;
+    }
+
+    callback();
+  });
+}
 
 /*
 $(".bs-callout").on("click", function(){

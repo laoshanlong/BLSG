@@ -17,12 +17,22 @@
 
     <section>
 
-			<!-- Rule -->
-			<div id="rule">
+			<!-- NavBar -->
+			<nav class="navbar navbar-inverse navbar-embossed" role="navigation">
+				<span class="navbar-brand">BLSG</span>
+				<form class="navbar-form navbar-right">
+					<div class="bootstrap-switch-square">
+						<input type="checkbox" data-toggle="switch" data-on-color="success" data-off-color="default" id="switch-rule-apply" checked/>
+					</div>
+				</form>
+			</nav>
 
-				<div class="bs-callout bs-callout-success" id="empty">
+			<!-- Rule -->
+			<div class="rule-collection" style="margin-top: -20px; margin-bottom: -10px;">
+
+				<div class="bs-callout bs-callout-warning" id="empty">
 					<h4>EMPTY!</h4>
-					add new rule
+					<p>add new rule</p>
 				</div>
 
 			</div>
@@ -39,12 +49,12 @@
     </section>
 
 		<!-- Template -->
-		<div class="hidden" id="templates">
+		<div class="hidden" id="template">
 
-			<div class="bs-callout bs-callout-default" id="template-rule" active="false">
+			<div class="bs-callout bs-callout-default rule-item" id="template-rule">
 				<div class="row">
 					<div class="col-xs-10">
-						<p><strong id="index">#INDEX</strong> <span class="label label-info" id="category">:CATEGORY</span></p>
+						<span class="label label-info" id="category">:CATEGORY</span>
 						<h4 id="rule">RULE</h4>
 						<span class="fui-home"/> / <span id="path">PATH</span> / <code id="path-rule">RULE</code>
 					</div>
@@ -62,7 +72,7 @@
 				</div>
 			</div>
 
-			<div class="bs-callout bs-callout-info" id="template-edit">
+			<div class="bs-callout bs-callout-info rule-edit" id="template-edit">
 				<div class="row">
 					<div class="col-xs-10">
 						<form>
