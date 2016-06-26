@@ -20,6 +20,11 @@
 			<!-- NavBar -->
 			<nav class="navbar navbar-inverse navbar-embossed" role="navigation">
 				<span class="navbar-brand">BLSG</span>
+				<ul class="nav navbar-nav navbar-left">
+					<li>
+						<a role="button" id="btn-add-rule">ADD</a>
+					</li>
+				</ul>
 				<form class="navbar-form navbar-right">
 					<div class="bootstrap-switch-square">
 						<input type="checkbox" data-toggle="switch" data-on-color="success" data-off-color="default" id="switch-rule-apply" checked/>
@@ -27,22 +32,13 @@
 				</form>
 			</nav>
 
-			<!-- Rule -->
-			<div class="rule-collection" style="margin-top: -20px; margin-bottom: -10px;">
+			<!-- RuleCollection -->
+			<div class="rule-collection">
 
-				<div class="bs-callout bs-callout-warning" id="empty">
+				<div class="bs-callout bs-callout-warning" id="rule-empty">
 					<h4>EMPTY!</h4>
 					<p>add new rule</p>
 				</div>
-
-			</div>
-
-			<!-- Bottom -->
-			<div id="bottom">
-
-				<button class="btn btn-block btn-embossed btn-primary" id="btn-add-rule">
-					<span class="fui-new"/>
-				</button>
 
 			</div>
 
@@ -51,49 +47,39 @@
 		<!-- Template -->
 		<div class="hidden" id="template">
 
-			<div class="bs-callout bs-callout-default rule-item" id="template-rule">
-				<div class="row">
-					<div class="col-xs-10">
-						<span class="label label-info" id="category">:CATEGORY</span>
-						<h4 id="rule">RULE</h4>
-						<span class="fui-home"/> / <span id="path">PATH</span> / <code id="path-rule">RULE</code>
-					</div>
-					<div class="col-xs-2">
-						<div class="dropdown">
-							<button class="btn btn-block btn-info btn-xs dropdown-toggle" data-toggle="dropdown">
-								<span class="fui-gear"/>
-							</button>
-							<ul class="dropdown-menu dropdown-menu-right">
-								<li><a href="#">EDIT</a></li>
-								<li><a href="#">DELETE</a></li>
-							</ul>
-						</div>
-					</div>
+			<div class="bs-callout bs-callout-default template-rule" id="template-rule">
+				<div style="position: absolute; top: 20px; right: 20px;">
+					<button class="btn btn-info btn-xs" name="btn-edit">EDIT</button>
+					<button class="btn btn-inverse btn-xs" name="btn-delete">DELETE</button>
 				</div>
+				<span class="label label-info" name="category">:CATEGORY</span>
+				<br/>
+				<span class="h4" name="rule">RULE</span>
+				<p>
+					<span class="fui-home"/> / <span name="path">PATH</span> / <code name="path-rule">RULE</code>
+				</p>
 			</div>
 
-			<div class="bs-callout bs-callout-info rule-edit" id="template-edit">
-				<div class="row">
-					<div class="col-xs-10">
-						<form>
-							<div class="form-group">
-								<select class="form-control select select-inverse" id="select-category">
-									<option>FILE</option>
-									<option>SITE</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<input class="form-control" id="input-rule" type="text" placeholder="rule"/>
-							</div>
-							<div class="form-group">
-								<input class="form-control" id="input-path" type="text" placeholder="path"/>
-							</div>
-						</form>
-					</div>
-					<div class="col-xs-2">
-						<button class="btn btn-block btn-success btn-xs" id="btn-submit"><span class="fui-check"/></button>
-					</div>
+			<div class="bs-callout bs-callout-info template-editor" id="template-editor">
+				<div style="position: absolute; top: 20px; right: 20px">
+					<button class="btn btn-success btn-xs" name="btn-submit">SUBMIT</button>
+					<button class="btn btn-danger btn-xs" name="btn-cancel">CANCEL</button>
 				</div>
+				<span class="h4" name="title">TITLE</span>
+				<form>
+					<div class="form-group">
+						<select class="form-control select select-inverse" name="select-category">
+							<option>FILE</option>
+							<option>SITE</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<input class="form-control" name="input-rule" type="text" placeholder="rule"/>
+					</div>
+					<div class="form-group">
+						<input class="form-control" name="input-path" type="text" placeholder="path"/>
+					</div>
+				</form>
 			</div>
 
 		</div>

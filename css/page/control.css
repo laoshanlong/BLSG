@@ -17,3 +17,7 @@ section { padding: 5px;}
 	margin-top: -20px;
 	margin-bottom: -10px;
 }
+
+.template-rule, .template-editor{
+	position: relative;
+}

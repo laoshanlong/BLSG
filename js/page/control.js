@@ -12,16 +12,16 @@ $.fn.extend({
         });
     },
     validateEditData: function(){
-      if($(this).hasClass("rule-edit") == false){
+      if($(this).hasClass("template-editor") == false){
         return false;
       }
 
-      let rule = $(this).find("#input-rule").val();
+      let rule = $(this).find("[name='input-rule']").val();
       if(rule === undefined || rule === ""){
         return false
       }
 
-      let path = $(this).find("#input-path").val();
+      let path = $(this).find("[name='input-path']").val();
       if(path === undefined || path === ""){
         return false;
       }
@@ -33,16 +33,20 @@ $.fn.extend({
         return undefined;
       }
 
-      let target = $(this).attr("data-edit-target");
-      let category = $(this).find("#select-category option:selected").val();
-      let rule = $(this).find("#input-rule").val();
-      let path = $(this).find("#input-path").val();
+      let target = $(this).attr("data-target");
+      let category = $(this).find("[name='select-category'] option:selected").val();
+      let rule = $(this).find("[name='input-rule']").val();
+      let path = $(this).find("[name='input-path']").val();
 
       return {target: target, category: category, rule: rule, path: path};
+    },
+    removeEditForm: function(){
+      $(this).find("[name='select-category']").select2("destroy");
+
+      $(this).detach();
     }
 });
 
-$("select").select2();
 $("input[data-toggle='switch']").bootstrapSwitch();
 
 /*
@@ -70,48 +74,70 @@ $("#btn-add-rule").on("click", function(){
 */
 
 $("#btn-add-rule").on("click", function(){
-  let editor = $("#template-edit").clone();
+  if($("#editor-add").length > 0){
+    return;
+  }
 
-  editor.find("#btn-submit").on("click", {editor: editor}, onSubmitAddRule);
+  let editor = $("#template-editor").clone();
 
-  exchangeFromTo($(this), editor);
+  editor.attr("id", "editor-add");
+
+  editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmitAddRule);
+  editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancelAddRule);
+  editor.find("[name='title']").text("ADD");
+  editor.find("[name='select-category']").select2();
+
+  let ruleEmpty = $("#rule-empty");
+
+  if(ruleEmpty.hasClass("hidden") == false){
+    exchangeFromTo(ruleEmpty, editor);
+  }
+  else{
+    editor.appendTo(".rule-collection");
+    editor.animateCss("fadeInLeft");
+  }
+
+  $("section").animate({scrollTop: editor.offset().top}, 800);
 });
 
 function onSubmitAddRule(event){
   let editor = event.data.editor;
-
-  exchangeFromTo(editor, $("#btn-add-rule"), function(){
-    editor.detach();
-  });
 
   if(editor.validateEditData() == false){
     return;
   }
 
   let rule = $("#template-rule").clone();
-  let index = $(".rule-collection > .rule-item").length;
+  let index = $(".rule-collection > .template-rule").length;
 
-  rule.attr("id", "rule-item-" + index);
+  rule.attr("id", "rule-" + index);
 
   let editData = editor.extractEditData();
 
-  rule.attr("data-rule-category", editData.category);
-  rule.attr("data-rule-rule", editData.rule);
-  rule.attr("data-rule-path", editData.path);
+  rule.attr("data", editData);
 
-  rule.find("#category").text(":" + editData.category);
-  rule.find("#rule").text(editData.rule);
-  rule.find("#path").text(editData.path);
-  rule.find("#path-rule").text(editData.rule);
+  rule.find("[name='category']").text(":" + editData.category);
+  rule.find("[name='rule']").text(editData.rule);
+  rule.find("[name='path']").text(editData.path);
+  rule.find("[name='path-rule']").text(editData.rule);
 
-  let empty = $("#empty");
+  exchangeFromTo(editor, rule, function(){
+    editor.removeEditForm();
+  });
+}
 
-  if(empty.hasClass("hidden") == false){
-    exchangeFromTo(empty, rule);
+function onCancelAddRule(event){
+  let editor = event.data.editor;
+
+  if( $(".rule-collection > .template-rule").length > 0){
+    editor.animateCss("fadeOutRight", function(){
+      editor.removeEditForm();
+    });
   }
   else{
-    rule.appendTo(".rule-collection");
-    rule.animateCss("fadeInLeft");
+    exchangeFromTo(editor, $("#rule-empty"), function(){
+      editor.removeEditForm();
+    });
   }
 }
 
