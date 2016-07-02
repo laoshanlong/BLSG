@@ -161,7 +161,7 @@ function onSelectCategory(event){
   editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden");
 }
 
-function exchangeFromTo(exchangeFrom, exchangeTo, isDetachFrom = false){
+function exchangeFromTo(exchangeFrom, exchangeTo, detachFrom = false){
   exchangeFrom.removeClass("hidden");
   exchangeTo.removeClass("hidden");
 
@@ -183,7 +183,7 @@ function exchangeFromTo(exchangeFrom, exchangeTo, isDetachFrom = false){
   head.css("margin-bottom", head.outerHeight() * -1);
 
   exchangeFrom.animateCss("fadeOutRight", function(animated){
-    if(isDetachFrom === true){
+    if(detachFrom === true){
       exchangeFrom.detach();
     }
     else{
