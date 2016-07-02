@@ -13,7 +13,7 @@
 
 	</head>
 
-	<body ng-app="demoapp">
+	<body>
 
     <section>
 
@@ -49,21 +49,21 @@
 		<!-- Template -->
 		<div class="hidden" id="template">
 
-			<div class="bs-callout bs-callout-default template-rule" id="template-rule">
+			<div class="bs-callout bs-callout-default template-rule">
 				<div style="position: absolute; top: 20px; right: 20px;">
 					<button class="btn btn-info btn-xs" name="btn-edit">EDIT</button>
 					<button class="btn btn-inverse btn-xs" name="btn-delete">DELETE</button>
 				</div>
-				<span class="label label-info" name="category">:CATEGORY</span>
-				<p style="margin-top: 8px;">
-					<span class="h4" name="rule">RULE</span>
+				<span class="label label-normal" name="category">:CATEGORY</span>
+				<p style="margin-top: 7px;">
+					<span class="h3" name="rule">RULE</span>
 				</p>
 				<p style="margin-top: 10px;">
 					<span class="glyphicon glyphicon-home" aria-hidden="true"/> / <span name="path">PATH</span> / <code name="path-rule">RULE</code>
 				</p>
 			</div>
 
-			<div class="bs-callout bs-callout-info template-editor" id="template-editor">
+			<div class="bs-callout bs-callout-danger template-editor">
 				<div style="position: absolute; top: 20px; right: 20px">
 					<button class="btn btn-success btn-xs" name="btn-submit">SUBMIT</button>
 					<button class="btn btn-danger btn-xs" name="btn-cancel">CANCEL</button>
@@ -77,20 +77,20 @@
 						<li><a role="button" name="dropdown-category-regex">:REGEX</a></li>
 					</ul>
 				</div>
-				<form style="margin-top: 2px;">
+				<form style="margin-top: 5px;">
 					<div class="form-group">
-						<div class="input-group input-group-sm" name="input-rule-extension">
+						<div class="input-group" name="input-rule-extension">
 							<span class="input-group-addon">.</span>
 							<input class="form-control" type="text" placeholder="rule"/>
 						</div>
-						<div class="input-group input-group-sm hidden" name="input-rule-regex">
+						<div class="input-group hidden" name="input-rule-regex">
 							<span class="input-group-addon">/</span>
 							<input class="form-control" type="text" placeholder="rule"/>
 							<span class="input-group-addon">/g</span>
 						</div>
 					</div>
 					<div class="form-group" style="margin-top: -10px; margin-bottom: -10px;">
-						<input class="form-control input-sm" name="input-path" type="text" placeholder="path"/>
+						<input class="form-control" name="input-path" type="text" placeholder="path"/>
 					</div>
 				</form>
 			</div>

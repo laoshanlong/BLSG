@@ -11,36 +11,61 @@ $.fn.extend({
             callback();
         });
     },
-    validate: function(){
-      if($(this).hasClass("template-editor") == false){
-        return false;
-      }
-      let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
-      let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
-      if(rule === undefined || rule === ""){
-        return false
-      }
-
-      let path = $(this).find("[name='input-path']").val();
-      if(path === undefined || path === ""){
-        return false;
-      }
-
-      return true;
-    },
     extract: function(){
-      let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
-      let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
-      if(rule === undefined || rule === ""){
-        return undefined;
+      if($(this).hasClass("template-rule") === true){
+        return JSON.parse($(this).attr("data"));
       }
 
-      let path = $(this).find("[name='input-path']").val();
-      if(path === undefined || path === ""){
-        return undefined;
+      if($(this).hasClass("template-editor") === true){
+        let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
+        let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
+        if(rule === undefined || rule === ""){
+          return undefined;
+        }
+
+        let path = $(this).find("[name='input-path']").val();
+        if(path === undefined || path === ""){
+          return undefined;
+        }
+
+        return {index: $(this).attr("index"), category: category, rule: rule, path: path};
       }
 
-      return {index: $(this).attr("index"), category: category, rule: rule, path: path};
+      return undefined;
+    },
+    inject: function(data){
+      if($(this).hasClass("template-rule") === true){
+        $(this).attr("index", data.index);
+        $(this).attr("data", JSON.stringify(data));
+
+        let categoryColor = "#FFFFFF";
+
+        if(data.category === "extension"){
+          categoryColor = "#5D9CEC";
+        }
+        else if(data.category === "regex"){
+          categoryColor = "#967ADC";
+        }
+
+        $(this).find("[name='category']").text(":" + data.category.toUpperCase()).css("background-color", categoryColor);
+        $(this).find("[name='rule']").text(data.rule).css("color", categoryColor);
+        $(this).find("[name='path']").text(data.path);
+        $(this).find("[name='path-rule']").text(data.rule);
+      }
+
+      if($(this).hasClass("template-editor") === true){
+        $(this).attr("index", data.index);
+
+        $(this).find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
+        $(this).find("[name|='input-rule']:not(.hidden)").addClass("hidden");
+
+        $(this).find("[name='dropdown-category-"+data.category+"']").attr("active", "").css("color", "#8CC152");
+        $(this).find("[name='lbl-dropdown-category']").text(":" + data.category.toUpperCase());
+        $(this).find("[name='input-rule-"+data.category+"']").removeClass("hidden").find("input").val(data.rule);
+        $(this).find("[name='input-path']").val(data.path);
+      }
+
+      return $(this);
     }
 });
 
@@ -79,86 +104,94 @@ $("#btn-add-rule").on("click", function(){
 */
 
 $("#btn-add-rule").on("click", function(){
-  if($("#editor-add").length > 0){
+  if($(".template-editor[index='"+ $(".rule-collection > .template-rule").length+"']").length > 0){
     return;
   }
 
-  let editor = $("#template-editor").clone();
+  let editor = createEditor().inject({index: $(".rule-collection > .template-rule").length, category: "extension", rule: "", path: ""});
 
-  editor.removeAttr("id");
-  editor.attr("index", $(".rule-collection > .template-rule").length);
-
-  editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmitAddRule);
-  editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancelAddRule);
-  editor.find("[name|='dropdown-category']").each(function(index, element){
-    let category = $(element);
-
-    category.on("click", {editor: editor, category: category}, onSelectCategory);
-  });
-
-  let ruleEmpty = $("#notify-empty");
-
-  if(ruleEmpty.hasClass("hidden") == false){
-    exchangeFromTo(ruleEmpty, editor);
+  if($("#notify-empty:hidden").length > 0){
+    editor.appendTo(".rule-collection").animateCss("fadeInLeft");
   }
   else{
-    editor.appendTo(".rule-collection");
-    editor.animateCss("fadeInLeft");
+    exchangeFromTo($("#notify-empty"), editor);
   }
 
   $("section").animate({scrollTop: editor.offset().top}, 800);
 });
 
-function onSubmitAddRule(event){
-  let editor = event.data.editor;
-  let data = editor.extract();
+function createEditor(){
+  let editor = $("#template > .template-editor").clone();
+
+  editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmit);
+  editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancel);
+  editor.find("[name|='dropdown-category']").each(function(index, element){
+    let category = $(element);
+
+    category.on("click", function(){
+      if(category.attr("active") !== undefined){
+        return;
+      }
+
+      editor.find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
+      let edited = editor.find("[name|='input-rule']:not(.hidden)").addClass("hidden").find("input").val();
+
+      category.attr("active", "").css("color", "#8CC152");
+
+      editor.find("[name='lbl-dropdown-category']").text(category.text());
+      editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden").find("input").val(edited);
+    });
+  });
+
+  return editor;
+}
+
+function createRule(){
+  let rule = $("#template > .template-rule").clone();
+
+  rule.find("[name='btn-edit']").on("click", {rule: rule}, onEdit);
+
+  return rule;
+}
+
+function onSubmit(event){
+  let data = event.data.editor.extract();
 
   if(data === undefined){
     return;
   }
 
-  let rule = $("#template-rule").clone();
+  let rule = $(".template-rule[index='"+data.index+"']");
 
-  rule.removeAttr("id");
-  rule.attr("data", data);
+  if(rule.length === 0){
+    rule = createRule();
+  }
 
-  rule.find("[name='category']").text(":" + data.category.toUpperCase());
-  rule.find("[name='rule']").text(data.rule);
-  rule.find("[name='path']").text(data.path);
-  rule.find("[name='path-rule']").text(data.rule);
-
-  exchangeFromTo(editor, rule, true);
+  exchangeFromTo(event.data.editor, rule.inject(data), true);
 }
 
-function onCancelAddRule(event){
-  let editor = event.data.editor;
+function onCancel(event){
+  let data = event.data.editor.extract();
 
   if( $(".rule-collection > .template-rule").length > 0){
-    editor.animateCss("fadeOutRight", function(){
-      editor.detach();
-    });
+    let rule = $(".template-rule[index='"+data.index+"']");
+
+    if(rule.length > 0){
+      exchangeFromTo(event.data.editor, rule, true);
+    }
+    else{
+      event.data.editor.animateCss("fadeOutRight", function(){
+        event.data.editor.detach();
+      });
+    }
   }
   else{
-    exchangeFromTo(editor, $("#notify-empty"), true);
+    exchangeFromTo(event.data.editor, $("#notify-empty"), true);
   }
 }
 
-function onSelectCategory(event){
-  let editor = event.data.editor;
-  let category = event.data.category;
-
-  if(category.attr("active") !== undefined){
-    return;
-  }
-
-  editor.find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
-  editor.find("[name|='input-rule']:not(.hidden)").addClass("hidden");
-
-  category.attr("active", "");
-  category.css("color", "#8CC152");
-
-  editor.find("[name='lbl-dropdown-category']").text(category.text());
-  editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden");
+function onEdit(event){
+  exchangeFromTo(event.data.rule, createEditor().inject(event.data.rule.extract()));
 }
 
 function exchangeFromTo(exchangeFrom, exchangeTo, detachFrom = false){
