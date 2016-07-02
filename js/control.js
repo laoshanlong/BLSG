@@ -11,12 +11,12 @@ $.fn.extend({
             callback();
         });
     },
-    validateEditData: function(){
+    validate: function(){
       if($(this).hasClass("template-editor") == false){
         return false;
       }
-
-      let rule = $(this).find("[name='input-rule']").val();
+      let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
+      let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
       if(rule === undefined || rule === ""){
         return false
       }
@@ -28,19 +28,31 @@ $.fn.extend({
 
       return true;
     },
-    extractEditData: function(){
-      if($(this).validateEditData() == false){
+    extract: function(){
+      let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
+      let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
+      if(rule === undefined || rule === ""){
         return undefined;
       }
 
-      let target = $(this).attr("data-target");
-      let category = $(this).find("[name='select-category'] option:selected").val();
-      let rule = $(this).find("[name='input-rule']").val();
       let path = $(this).find("[name='input-path']").val();
+      if(path === undefined || path === ""){
+        return undefined;
+      }
 
-      return {target: target, category: category, rule: rule, path: path};
+      return {index: $(this).attr("index"), category: category, rule: rule, path: path};
     }
 });
+
+$("#btn-apply-active").on("click", function(){
+  $("#btn-apply-active").addClass("hidden");
+  $("#btn-apply-inactive").removeClass("hidden");
+});
+
+$("#btn-apply-inactive").on("click", function(){
+  $("#btn-apply-active").removeClass("hidden");
+  $("#btn-apply-inactive").addClass("hidden");
+})
 
 /*
 $("#btn-add-rule").on("click", function(){
@@ -74,6 +86,7 @@ $("#btn-add-rule").on("click", function(){
   let editor = $("#template-editor").clone();
 
   editor.removeAttr("id");
+  editor.attr("index", $(".rule-collection > .template-rule").length);
 
   editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmitAddRule);
   editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancelAddRule);
@@ -83,6 +96,9 @@ $("#btn-add-rule").on("click", function(){
     category.on("click", {editor: editor, category: category}, onSelectCategory);
   });
 
+  editor.appendTo(".rule-collection");
+  editor.animateCss("fadeInLeft");
+/*
   let ruleEmpty = $("#rule-empty");
 
   if(ruleEmpty.hasClass("hidden") == false){
@@ -92,30 +108,27 @@ $("#btn-add-rule").on("click", function(){
     editor.appendTo(".rule-collection");
     editor.animateCss("fadeInLeft");
   }
-
+*/
   $("section").animate({scrollTop: editor.offset().top}, 800);
 });
 
 function onSubmitAddRule(event){
   let editor = event.data.editor;
+  let data = editor.extract();
 
-  if(editor.validateEditData() == false){
+  if(data === undefined){
     return;
   }
 
   let rule = $("#template-rule").clone();
-  let index = $(".rule-collection > .template-rule").length;
 
-  rule.attr("id", "rule-" + index);
+  rule.removeAttr("id");
+  rule.attr("data", data);
 
-  let editData = editor.extractEditData();
-
-  rule.attr("data", editData);
-
-  rule.find("[name='category']").text(":" + editData.category);
-  rule.find("[name='rule']").text(editData.rule);
-  rule.find("[name='path']").text(editData.path);
-  rule.find("[name='path-rule']").text(editData.rule);
+  rule.find("[name='category']").text(":" + data.category.toUpperCase());
+  rule.find("[name='rule']").text(data.rule);
+  rule.find("[name='path']").text(data.path);
+  rule.find("[name='path-rule']").text(data.rule);
 
   exchangeFromTo(editor, rule, function(){
     editor.detach();
@@ -151,7 +164,7 @@ function onSelectCategory(event){
   category.attr("active", "");
   category.css("color", "#8CC152");
 
-  editor.find("[name='btn-dropdown-category']").text(category.text());
+  editor.find("[name='lbl-dropdown-category']").text(category.text());
   editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden");
 }
 
@@ -171,19 +184,18 @@ function exchangeFromTo(exchangeFrom, exchangeTo, callback){
     exchangeFrom.detach().insertAfter(exchangeTo);
   }
 
-  exchangeTo.css("margin-top", exchangeFrom.css("margin-top"));
+  exchangeTo.css("margin-top", 0);
   exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
 
-  let outerHeight = head.outerHeight();
-  let marginBottom = parseInt(head.css("margin-bottom").slice(0, -2));
-
-  head.css("margin-bottom", (outerHeight + marginBottom) * -1);
+  head.css("margin-bottom", head.outerHeight() * -1);
 
   exchangeFrom.animateCss("fadeOutRight", function(animated){
-    exchangeFrom.addClass("hidden");
+    //exchangeFrom.addClass("hidden");
   });
 
   exchangeTo.animateCss("fadeInLeft", function(animated){
+    exchangeTo.css("margin-top", exchangeFrom.css("margin-top"));
+
     if(exchangeTo == head){
       exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
     }

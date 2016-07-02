@@ -26,8 +26,8 @@
 					<div class="collapse navbar-collapse">
 						<button class="btn btn-danger navbar-btn" id="btn-add-rule">ADD</button>
 						<p class="navbar-text navbar-right">
-							<a role="button" style="color: #8CC152;">:ON</a>
-							<a class="hidden" role="button" style="color: #CCD1D9;">:OFF</a>
+							<a role="button" id="btn-apply-active" style="color: #8CC152;">:ON</a>
+							<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9;">:OFF</a>
 						</p>
 					</div>
 				</div>
@@ -35,13 +35,13 @@
 
 			<!-- RuleCollection -->
 			<div class="rule-collection">
-
-				<div id="rule-empty">
+<!--
+				<div id="rule-empty" style="margin: 20px 0;">
 					<p class="text-center" style="margin-bottom: 0px;">
 						<span class="h1">HAS NO RULE</span>
 					</p>
 				</div>
-
+-->
 			</div>
 
     </section>
@@ -69,12 +69,12 @@
 					<button class="btn btn-danger btn-xs" name="btn-cancel">CANCEL</button>
 				</div>
 				<div class="btn-group">
-					<button class="btn btn-default btn-xs dropdown-toggle" name="btn-dropdown-category" data-toggle="dropdown">
-						:EXTENSION <span class="caret"></span>
+					<button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+						<span name="lbl-dropdown-category">:EXTENSION </span><span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a name="dropdown-category-extension" active style="color: #8CC152;">:EXTENSION</a></li>
-						<li><a name="dropdown-category-regex">:REGEX</a></li>
+						<li><a role="button" name="dropdown-category-extension" active style="color: #8CC152;">:EXTENSION</a></li>
+						<li><a role="button" name="dropdown-category-regex">:REGEX</a></li>
 					</ul>
 				</div>
 				<form style="margin-top: 2px;">
