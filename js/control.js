@@ -96,10 +96,7 @@ $("#btn-add-rule").on("click", function(){
     category.on("click", {editor: editor, category: category}, onSelectCategory);
   });
 
-  editor.appendTo(".rule-collection");
-  editor.animateCss("fadeInLeft");
-/*
-  let ruleEmpty = $("#rule-empty");
+  let ruleEmpty = $("#notify-empty");
 
   if(ruleEmpty.hasClass("hidden") == false){
     exchangeFromTo(ruleEmpty, editor);
@@ -108,7 +105,7 @@ $("#btn-add-rule").on("click", function(){
     editor.appendTo(".rule-collection");
     editor.animateCss("fadeInLeft");
   }
-*/
+
   $("section").animate({scrollTop: editor.offset().top}, 800);
 });
 
@@ -130,9 +127,7 @@ function onSubmitAddRule(event){
   rule.find("[name='path']").text(data.path);
   rule.find("[name='path-rule']").text(data.rule);
 
-  exchangeFromTo(editor, rule, function(){
-    editor.detach();
-  });
+  exchangeFromTo(editor, rule, true);
 }
 
 function onCancelAddRule(event){
@@ -144,9 +139,7 @@ function onCancelAddRule(event){
     });
   }
   else{
-    exchangeFromTo(editor, $("#rule-empty"), function(){
-      editor.detach();
-    });
+    exchangeFromTo(editor, $("#notify-empty"), true);
   }
 }
 
@@ -168,7 +161,7 @@ function onSelectCategory(event){
   editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden");
 }
 
-function exchangeFromTo(exchangeFrom, exchangeTo, callback){
+function exchangeFromTo(exchangeFrom, exchangeTo, isDetachFrom = false){
   exchangeFrom.removeClass("hidden");
   exchangeTo.removeClass("hidden");
 
@@ -190,7 +183,12 @@ function exchangeFromTo(exchangeFrom, exchangeTo, callback){
   head.css("margin-bottom", head.outerHeight() * -1);
 
   exchangeFrom.animateCss("fadeOutRight", function(animated){
-    //exchangeFrom.addClass("hidden");
+    if(isDetachFrom === true){
+      exchangeFrom.detach();
+    }
+    else{
+      exchangeFrom.addClass("hidden");
+    }
   });
 
   exchangeTo.animateCss("fadeInLeft", function(animated){
@@ -201,12 +199,6 @@ function exchangeFromTo(exchangeFrom, exchangeTo, callback){
     }
 
     exchangeFrom.removeAttr("style");
-
-    if(callback === undefined){
-      return;
-    }
-
-    callback();
   });
 }
 
