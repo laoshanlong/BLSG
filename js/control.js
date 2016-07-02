@@ -12,32 +12,27 @@ $.fn.extend({
         });
     },
     extract: function(){
+      let data = JSON.parse($(this).attr("data"));
+
       if($(this).hasClass("template-rule") === true){
-        return JSON.parse($(this).attr("data"));
+        return data;
       }
 
       if($(this).hasClass("template-editor") === true){
-        let category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
-        let rule = $(this).find("[name='input-rule-"+category+"']").find("input").val();
-        if(rule === undefined || rule === ""){
-          return undefined;
-        }
+        data.category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
+        data.rule = $(this).find("[name='input-rule-"+data.category+"']").find("input").val();
+        data.path = $(this).find("[name='input-path']").val();
 
-        let path = $(this).find("[name='input-path']").val();
-        if(path === undefined || path === ""){
-          return undefined;
-        }
-
-        return {index: $(this).attr("index"), category: category, rule: rule, path: path};
+        return data;
       }
 
       return undefined;
     },
     inject: function(data){
-      if($(this).hasClass("template-rule") === true){
-        $(this).attr("index", data.index);
-        $(this).attr("data", JSON.stringify(data));
+      $(this).attr("index", data.index);
+      $(this).attr("data", JSON.stringify(data));
 
+      if($(this).hasClass("template-rule") === true){
         let categoryColor = "#FFFFFF";
 
         if(data.category === "extension"){
@@ -68,6 +63,8 @@ $.fn.extend({
       return $(this);
     }
 });
+
+$(".template-empty:last").clone().appendTo("#rule-collection").animateCss("fadeInLeft");
 
 $("#btn-apply-active").on("click", function(){
   $("#btn-apply-active").addClass("hidden");
@@ -104,17 +101,15 @@ $("#btn-add-rule").on("click", function(){
 */
 
 $("#btn-add-rule").on("click", function(){
-  if($(".template-editor[index='"+ $(".rule-collection > .template-rule").length+"']").length > 0){
-    return;
-  }
+  $(this).attr("disabled", "disabled");
 
-  let editor = createEditor().inject({index: $(".rule-collection > .template-rule").length, category: "extension", rule: "", path: ""});
+  let editor = createEditor().inject({index: $("#rule-collection > .template-rule").length, category: "extension", rule: "", path: "", state: "new"});
 
-  if($("#notify-empty:hidden").length > 0){
-    editor.appendTo(".rule-collection").animateCss("fadeInLeft");
+  if($("#rule-collection > .template-empty").length > 0){
+    exchangeFromTo($("#rule-collection > .template-empty"), editor);
   }
   else{
-    exchangeFromTo($("#notify-empty"), editor);
+    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
   }
 
   $("section").animate({scrollTop: editor.offset().top}, 800);
@@ -155,48 +150,63 @@ function createRule(){
 }
 
 function onSubmit(event){
+  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
+  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
+
   let data = event.data.editor.extract();
 
-  if(data === undefined){
+  if(data.rule === undefined || data.rule === ""){
     return;
   }
 
-  let rule = $(".template-rule[index='"+data.index+"']");
-
-  if(rule.length === 0){
-    rule = createRule();
+  if(data.path === undefined || data.path === ""){
+    return;
   }
 
-  exchangeFromTo(event.data.editor, rule.inject(data), true);
+  if(data.state === "new"){
+    $("#btn-add-rule").removeAttr("disabled");
+  }
+
+  data.state = "contain";
+
+  exchangeFromTo(event.data.editor, createRule().inject(data), true);
 }
 
 function onCancel(event){
+  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
+  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
+
   let data = event.data.editor.extract();
 
-  if( $(".rule-collection > .template-rule").length > 0){
-    let rule = $(".template-rule[index='"+data.index+"']");
+  if(data.state === "contain"){
+    exchangeFromTo(event.data.editor, createRule().inject(data), true);
+  }
+  else{
+    $("#btn-add-rule").removeAttr("disabled");
 
-    if(rule.length > 0){
-      exchangeFromTo(event.data.editor, rule, true);
-    }
-    else{
+    if($("#rule-collection").children().length > 1){
       event.data.editor.animateCss("fadeOutRight", function(){
         event.data.editor.detach();
       });
     }
-  }
-  else{
-    exchangeFromTo(event.data.editor, $("#notify-empty"), true);
+    else{
+      exchangeFromTo(event.data.editor, $(".template-empty:last").clone(), true);
+    }
   }
 }
 
 function onEdit(event){
+  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
+
   exchangeFromTo(event.data.rule, createEditor().inject(event.data.rule.extract()));
 }
 
-function exchangeFromTo(exchangeFrom, exchangeTo, detachFrom = false){
+function exchangeFromTo(exchangeFrom, exchangeTo){
   exchangeFrom.removeClass("hidden");
   exchangeTo.removeClass("hidden");
+
+  exchangeTo.css("margin", exchangeFrom.css("margin"));
 
   let head = exchangeFrom;
   let tail = exchangeTo;
@@ -210,28 +220,21 @@ function exchangeFromTo(exchangeFrom, exchangeTo, detachFrom = false){
     exchangeFrom.detach().insertAfter(exchangeTo);
   }
 
-  exchangeTo.css("margin-top", 0);
-  exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
+  tail.css("margin-top", 0);
+  tail.css("margin-bottom", head.css("margin-bottom"));
 
   head.css("margin-bottom", head.outerHeight() * -1);
 
   exchangeFrom.animateCss("fadeOutRight", function(animated){
-    if(detachFrom === true){
-      exchangeFrom.detach();
-    }
-    else{
-      exchangeFrom.addClass("hidden");
-    }
+    exchangeFrom.detach();
   });
 
   exchangeTo.animateCss("fadeInLeft", function(animated){
-    exchangeTo.css("margin-top", exchangeFrom.css("margin-top"));
+    tail.css("margin-top", head.css("margin-top"));
 
     if(exchangeTo == head){
-      exchangeTo.css("margin-bottom", exchangeFrom.css("margin-bottom"));
+      head.css("margin-bottom", tail.css("margin-bottom"));
     }
-
-    exchangeFrom.removeAttr("style");
   });
 }
 

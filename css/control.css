@@ -13,10 +13,6 @@ section { padding: 5px;}
 ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:window-inactive  { background: #777; }
 
 /* Class */
-.rule-collection{
-	margin-bottom: -10px;
-}
-
 .template-rule, .template-editor{
 	position: relative;
 }
