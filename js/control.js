@@ -39,15 +39,8 @@ $.fn.extend({
       let path = $(this).find("[name='input-path']").val();
 
       return {target: target, category: category, rule: rule, path: path};
-    },
-    removeEditForm: function(){
-      $(this).find("[name='select-category']").select2("destroy");
-
-      $(this).detach();
     }
 });
-
-$("input[data-toggle='switch']").bootstrapSwitch();
 
 /*
 $("#btn-add-rule").on("click", function(){
@@ -80,12 +73,15 @@ $("#btn-add-rule").on("click", function(){
 
   let editor = $("#template-editor").clone();
 
-  editor.attr("id", "editor-add");
+  editor.removeAttr("id");
 
   editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmitAddRule);
   editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancelAddRule);
-  editor.find("[name='title']").text("ADD");
-  editor.find("[name='select-category']").select2();
+  editor.find("[name|='dropdown-category']").each(function(index, element){
+    let category = $(element);
+
+    category.on("click", {editor: editor, category: category}, onSelectCategory);
+  });
 
   let ruleEmpty = $("#rule-empty");
 
@@ -122,7 +118,7 @@ function onSubmitAddRule(event){
   rule.find("[name='path-rule']").text(editData.rule);
 
   exchangeFromTo(editor, rule, function(){
-    editor.removeEditForm();
+    editor.detach();
   });
 }
 
@@ -131,14 +127,32 @@ function onCancelAddRule(event){
 
   if( $(".rule-collection > .template-rule").length > 0){
     editor.animateCss("fadeOutRight", function(){
-      editor.removeEditForm();
+      editor.detach();
     });
   }
   else{
     exchangeFromTo(editor, $("#rule-empty"), function(){
-      editor.removeEditForm();
+      editor.detach();
     });
   }
+}
+
+function onSelectCategory(event){
+  let editor = event.data.editor;
+  let category = event.data.category;
+
+  if(category.attr("active") !== undefined){
+    return;
+  }
+
+  editor.find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
+  editor.find("[name|='input-rule']:not(.hidden)").addClass("hidden");
+
+  category.attr("active", "");
+  category.css("color", "#8CC152");
+
+  editor.find("[name='btn-dropdown-category']").text(category.text());
+  editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden");
 }
 
 function exchangeFromTo(exchangeFrom, exchangeTo, callback){
