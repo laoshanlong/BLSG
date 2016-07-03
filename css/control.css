@@ -5,7 +5,9 @@ body, section {
 	overflow-x: hidden;
 }
 
-section { padding: 5px;}
+section {
+	padding: 5px;
+}
 
 /* Scroll Bar */
 ::-webkit-scrollbar { width: 6px; }
@@ -13,6 +15,18 @@ section { padding: 5px;}
 ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:window-inactive  { background: #777; }
 
 /* Class */
+.navbar-sticky-top{
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	z-index: 1030;
+}
+
+#rule-collection{
+	margin-top: 70px;
+}
+
 .template-rule, .template-editor{
 	position: relative;
 }

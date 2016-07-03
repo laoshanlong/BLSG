@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "recycling",
-  "description": "download recycling?",
+  "name": "BLSG",
+  "description": "BLSG",
   "version": "0.0.1",
 
   "browser_action": {
@@ -12,5 +12,5 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": ["downloads"]
+  "permissions": ["downloads", "storage"]
 }

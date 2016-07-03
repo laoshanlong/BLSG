@@ -1,3 +1,4 @@
+/*extend*/
 $.fn.extend({
     animateCss: function (animationName, callback) {
         var animationEnd = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
@@ -64,6 +65,7 @@ $.fn.extend({
     }
 });
 
+/*init*/
 $(".template-empty:last").clone().appendTo("#rule-collection").animateCss("fadeInLeft");
 
 $("#btn-apply-active").on("click", function(){
@@ -76,45 +78,13 @@ $("#btn-apply-inactive").on("click", function(){
   $("#btn-apply-inactive").addClass("hidden");
 })
 
-/*
-$("#btn-add-rule").on("click", function(){
-  let templateEdit = $("#template-edit").clone();
+$("#btn-add-rule").on("click", onAdd);
 
-  templateEdit.css("margin-top", $("#empty").css("margin-top"));
-  templateEdit.css("margin-bottom", $("#empty").css("margin-bottom"));
-
-  let outerHeight = $("#empty").outerHeight();
-  let marginBottom = parseInt($("#empty").css("margin-bottom").slice(0, -2));
-
-  console.log(outerHeight);
-  console.log(marginBottom);
-
-  $("#empty").css("margin-bottom", (outerHeight + marginBottom) * -1);
-
-  $("#empty").animateCss("fadeOutRight", function(animated){
-    animated.addClass("hidden");
-  });
-
-  templateEdit.insertAfter("#empty");
-  templateEdit.animateCss("fadeInLeft");
-});
-*/
-
-$("#btn-add-rule").on("click", function(){
-  $(this).attr("disabled", "disabled");
-
-  let editor = createEditor().inject({index: $("#rule-collection > .template-rule").length, category: "extension", rule: "", path: "", state: "new"});
-
-  if($("#rule-collection > .template-empty").length > 0){
-    exchangeFromTo($("#rule-collection > .template-empty"), editor);
-  }
-  else{
-    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
-  }
-
-  $("section").animate({scrollTop: editor.offset().top}, 800);
+chrome.runtime.sendMessage({message: "hello"}, function(response){
+  $(".template-empty:first").find(".h1").text(response.message);
 });
 
+/*function*/
 function createEditor(){
   let editor = $("#template > .template-editor").clone();
 
@@ -145,15 +115,32 @@ function createRule(){
   let rule = $("#template > .template-rule").clone();
 
   rule.find("[name='btn-edit']").on("click", {rule: rule}, onEdit);
+  rule.find("[name='btn-delete']").on("click", {rule: rule}, onDelete);
 
   return rule;
 }
 
-function onSubmit(event){
-  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
-  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
+function onAdd(){
+  $("#btn-add-rule").attr("disabled", "disabled");
 
+  let editor = createEditor().inject({index: $("#rule-collection > .template-rule").length, category: "extension", rule: "", path: "", state: "new"});
+
+  if($("#rule-collection > .template-empty").length > 0){
+    exchangeFromTo($("#rule-collection > .template-empty"), editor);
+  }
+  else{
+    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
+  }
+
+  $("section").animate({scrollTop: editor.offset().top}, 500);
+}
+
+function onSubmit(event){
   let data = event.data.editor.extract();
+
+  if(data === undefined){
+    return;
+  }
 
   if(data.rule === undefined || data.rule === ""){
     return;
@@ -162,6 +149,9 @@ function onSubmit(event){
   if(data.path === undefined || data.path === ""){
     return;
   }
+
+  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
+  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
   if(data.state === "new"){
     $("#btn-add-rule").removeAttr("disabled");
@@ -184,7 +174,7 @@ function onCancel(event){
   else{
     $("#btn-add-rule").removeAttr("disabled");
 
-    if($("#rule-collection").children().length > 1){
+    if($("#rule-collection").children(":not([name='template-empty']) :not(.fadeOutRight)").length > 1){
       event.data.editor.animateCss("fadeOutRight", function(){
         event.data.editor.detach();
       });
@@ -199,7 +189,25 @@ function onEdit(event){
   event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
 
-  exchangeFromTo(event.data.rule, createEditor().inject(event.data.rule.extract()));
+  let editor = createEditor().inject(event.data.rule.extract());
+
+  exchangeFromTo(event.data.rule, editor);
+
+  $("section").animate({scrollTop: editor.offset().top}, 500);
+}
+
+function onDelete(event){
+  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
+
+  if($("#rule-collection").children(":not([name='template-empty']) :not(.fadeOutRight)").length > 1){
+    event.data.rule.animateCss("fadeOutRight", function(){
+      event.data.rule.detach();
+    });
+  }
+  else{
+    exchangeFromTo(event.data.rule, $(".template-empty:last").clone(), true);
+  }
 }
 
 function exchangeFromTo(exchangeFrom, exchangeTo){
@@ -237,13 +245,3 @@ function exchangeFromTo(exchangeFrom, exchangeTo){
     }
   });
 }
-
-/*
-$(".bs-callout").on("click", function(){
-  $(".bs-callout").attr("active", "false");
-  $(".bs-callout").attr("class", "bs-callout bs-callout-default");
-
-  $(this).attr("active", "true");
-  $(this).attr("class", "bs-callout bs-callout-primary");
-});
-*/

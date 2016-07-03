@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
 	<head>
 	  <meta charset="utf-8">
@@ -18,21 +17,19 @@
     <section>
 
 			<!-- NavBar -->
-			<nav class="navbar navbar-inverse" role="navigation">
+			<nav class="navbar navbar-inverse navbar-sticky-top">
 				<div class="container-fluid">
 					<div class="navbar-header">
 						<span class="navbar-brand">BLSG</span>
 					</div>
-					<div class="collapse navbar-collapse">
-						<button class="btn btn-danger navbar-btn" id="btn-add-rule">ADD</button>
-						<p class="navbar-text navbar-right">
-							<a role="button" id="btn-apply-active" style="color: #8CC152;">:ON</a>
-							<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9;">:OFF</a>
-						</p>
-					</div>
+					<button class="btn btn-danger navbar-btn" id="btn-add-rule">ADD</button>
+					<p class="navbar-text navbar-right">
+						<a role="button" id="btn-apply-active" style="color: #8CC152;">:ON</a>
+						<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9;">:OFF</a>
+					</p>
 				</div>
 			</nav>
-
+			
 			<!-- RuleCollection -->
 			<div id="rule-collection">
 			</div>
@@ -54,10 +51,10 @@
 					<button class="btn btn-inverse btn-xs" name="btn-delete">DELETE</button>
 				</div>
 				<span class="label label-normal" name="category">:CATEGORY</span>
-				<p style="margin-top: 7px;">
+				<p style="margin-top: 5px;">
 					<span class="h3" name="rule">RULE</span>
 				</p>
-				<p style="margin-top: 10px;">
+				<p>
 					<span class="glyphicon glyphicon-home" aria-hidden="true"/> / <span name="path">PATH</span> / <code name="path-rule">RULE</code>
 				</p>
 			</div>
@@ -76,7 +73,7 @@
 						<li><a role="button" name="dropdown-category-regex">:REGEX</a></li>
 					</ul>
 				</div>
-				<form style="margin-top: 5px;">
+				<form style="margin-top: 5px; margin-bottom: 0px;">
 					<div class="form-group">
 						<div class="input-group" name="input-rule-extension">
 							<span class="input-group-addon">.</span>
@@ -88,7 +85,7 @@
 							<span class="input-group-addon">/g</span>
 						</div>
 					</div>
-					<div class="form-group" style="margin-top: -10px; margin-bottom: -10px;">
+					<div class="form-group" style="margin-bottom: 0px;">
 						<input class="form-control" name="input-path" type="text" placeholder="path"/>
 					</div>
 				</form>
