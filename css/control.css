@@ -1,4 +1,4 @@
-/* Body, Section */
+/* tag */
 body, section {
 	width: 500px;
 	height: 400px;
@@ -9,35 +9,120 @@ section {
 	padding: 5px;
 }
 
+a[role="button"]{
+	cursor: hand;
+}
+
 /* Scroll Bar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); }
-::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:window-inactive  { background: #777; }
+::-webkit-scrollbar{
+	width: 6px;
+}
+
+::-webkit-scrollbar-track{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+::-webkit-scrollbar-thumb, ::-webkit-scrollbar-thumb:window-inactive{
+	background: #777;
+}
 
 /* Class */
-.template-rule, .template-editor{
+.template{
 	position: relative;
+	padding: 20px;
+	margin: 10px 5px 10px 0px;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+}
+
+.template .template-button-container{
+	position: absolute;
+	top: 20px;
+	right: 20px;
+}
+
+.template .h3{
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+.template p:last-child{
+	margin-bottom: 0;
+}
+
+.template code{
+	border-radius: 0px;
+}
+
+.template .label{
+	border-radius: 0px;
+}
+
+.template-rule{
+	min-height: 116px;
+}
+
+.template-rule-extension{
+    border-left-color: #5D9CEC;
+}
+
+.template-rule-extension .h3{
+    color: #5D9CEC;
+}
+
+.template-rule-extension .label{
+    background-color: #5D9CEC;
+}
+
+.template-rule-regex{
+    border-left-color: #967ADC;
+}
+
+.template-rule-regex .h3{
+    color: #967ADC;
+}
+
+.template-rule-regex .label{
+    background-color: #967ADC;
+}
+
+.template-editor{
+    border-left-color: #D9534F;
+}
+
+.template-notify{
+	border: 0px;
+}
+
+.btn, .input-group-addon, .form-control{
+	border-radius: 0px;
 }
 
 /* Id */
-#navbar-control{
+#navbar-top{
 	position: fixed;
 	left: 0px;
 	right: 0px;
+	top: 0px;
 	width: 100%;
+	border-radius: 0px;
+	z-index: 1030;
+}
+
+#navbar-bottom{
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	width: 100%;
+	border-radius: 0px;
 	z-index: 1030;
 }
 
 #rule-collection{
-	margin-top: 70px;
-}
-
-#screen-inactive{
-	position: fixed;
-	left: 0px;
-	right: 0px;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index : 1000;
+	margin-top: 55px;
+	margin-bottom: 25px;
+	height: 310px;
+	overflow-x: hidden;
+	overflow-y: scroll;
 }

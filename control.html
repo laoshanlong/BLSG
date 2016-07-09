@@ -7,7 +7,6 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 		<link href="css/bootflat.min.css" rel="stylesheet" media="screen">
 		<link href="css/animate.css" rel="stylesheet" media="screen">
-		<link href="css/bs-callout.css" rel="stylesheet" media="screen">
 		<link href="css/control.css" rel="stylesheet" media="screen">
 
 	</head>
@@ -15,34 +14,32 @@
 	<body>
 
     <section>
-
 			<!-- NavBar -->
-			<nav class="navbar navbar-inverse" id="navbar-control">
+			<nav class="navbar navbar-inverse" id="navbar-top">
 				<div class="container-fluid">
 					<div class="navbar-header">
-						<span class="navbar-brand">ㅂㄹㅅㄱ</span>
+						<span class="navbar-brand"><strong>ㅂㄹㅅㄱ</strong></span>
 					</div>
-					<button class="btn btn-danger navbar-btn" id="btn-add-rule">ADD</button>
 					<p class="navbar-text navbar-right">
-						<a role="button" id="btn-apply-active" style="color: #8CC152; cursor: hand">:ON</a>
-						<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9; cursor: hand">:OFF</a>
+						<a role="button" id="btn-apply-active" style="color: #8CC152;">:ON</a>
+						<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9;">:OFF</a>
 					</p>
 				</div>
 			</nav>
 
-			<div class="hidden" id="screen-inactive">
-			</div>
-
 			<!-- RuleCollection -->
 			<div id="rule-collection">
 			</div>
+
+			<!-- NavBar -->
+			<a class="btn btn-danger btn-xs" id="navbar-bottom">ADD</a>
 
     </section>
 
 		<!-- Template -->
 		<div class="hidden" id="template">
 
-			<div class="template-notify" style="margin: 20px 0;">
+			<div class="template template-notify">
 				<p class="text-center" style="margin-bottom: 0px;">
 					<span class="h1" name="message">MESSAGE</span>
 					<br/>
@@ -50,22 +47,21 @@
 				</p>
 			</div>
 
-			<div class="bs-callout bs-callout-default template-rule">
-				<div style="position: absolute; top: 20px; right: 20px;">
+			<div class="template template-rule">
+				<div class="template-button-container">
 					<button class="btn btn-info btn-xs" name="btn-edit">EDIT</button>
 					<button class="btn btn-inverse btn-xs" name="btn-delete">DELETE</button>
 				</div>
 				<span class="label label-normal" name="category">:CATEGORY</span>
-				<p style="margin-top: 5px;">
-					<span class="h3" name="rule">RULE</span>
-				</p>
+				<br/>
+				<span class="h3" name="rule">RULE</span>
 				<p>
 					<span class="glyphicon glyphicon-home" aria-hidden="true"/> / <span name="path">PATH</span> / <code name="path-rule">RULE</code>
 				</p>
 			</div>
 
-			<div class="bs-callout bs-callout-danger template-editor">
-				<div style="position: absolute; top: 20px; right: 20px">
+			<div class="template template-editor">
+				<div class="template-button-container">
 					<button class="btn btn-success btn-xs" name="btn-submit">SUBMIT</button>
 					<button class="btn btn-danger btn-xs" name="btn-cancel">CANCEL</button>
 				</div>

@@ -33,17 +33,10 @@ $.fn.extend({
       $(this).attr("data", JSON.stringify(data));
 
       if($(this).hasClass("template-rule") === true){
-        let categoryColor = "#FFFFFF";
+        $(this).addClass("template-rule-" + data.category)
 
-        if(data.category === "extension"){
-          categoryColor = "#5D9CEC";
-        }
-        else if(data.category === "regex"){
-          categoryColor = "#967ADC";
-        }
-
-        $(this).find("[name='category']").text(":" + data.category.toUpperCase()).css("background-color", categoryColor);
-        $(this).find("[name='rule']").text(data.rule).css("color", categoryColor);
+        $(this).find("[name='category']").text(":" + data.category.toUpperCase());
+        $(this).find("[name='rule']").text(data.rule);
         $(this).find("[name='path']").text(data.path);
         $(this).find("[name='path-rule']").text(data.rule);
       }
@@ -93,28 +86,6 @@ chrome.runtime.onMessage.addListener(function(request, sender){
   }
 });
 
-/*
-let notifyInit = $(".template-notify:last").clone();
-
-notifyInit.find("[name='message']").text("INIT");
-notifyInit.appendTo("#rule-collection").animateCss("fadeInLeft", function(){
-  let description = notifyInit.find("[name='description']");
-
-  let interval = setInterval(function(){
-    let text = description.text();
-
-    if(text.length < 3){
-      text += ".";
-    }
-    else{
-      text = "";
-    }
-
-    description.text(text);
-  }, 350);
-});
-*/
-
 $("#btn-apply-active").on("click", function(){
   chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: false}});
 });
@@ -123,7 +94,7 @@ $("#btn-apply-inactive").on("click", function(){
   chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: true}});
 })
 
-$("#btn-add-rule").on("click", onAdd);
+$("#navbar-bottom").on("click", onAdd);
 
 chrome.runtime.sendMessage({command: "rqstGetInit"});
 
@@ -135,7 +106,7 @@ function ackGetInit(state, param){
     //TODO add list
   }
   else{
-    createNotify("HAS NO RULE").appendTo("#rule-collection").animateCss("fadeInLeft");
+    createNotify("EMPTY").appendTo("#rule-collection").animateCss("fadeInLeft");
   }
 }
 
@@ -206,7 +177,7 @@ function createRule(){
 }
 
 function onAdd(){
-  $("#btn-add-rule").attr("disabled", "disabled");
+  $("#navbar-bottom").attr("disabled", "disabled");
 
   let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
 
@@ -217,7 +188,7 @@ function onAdd(){
     editor.appendTo("#rule-collection").animateCss("fadeInLeft");
   }
 
-  $("section").animate({scrollTop: editor.offset().top}, 500);
+  $("#rule-collection").animate({scrollTop: editor.offset().top}, 500);
 }
 
 function onSubmit(event){
@@ -239,7 +210,7 @@ function onSubmit(event){
   event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
   if(data.state === "new"){
-    $("#btn-add-rule").removeAttr("disabled");
+    $("#navbar-bottom").removeAttr("disabled");
   }
 
   data.state = "contain";
@@ -257,7 +228,7 @@ function onCancel(event){
     exchangeFromTo(event.data.editor, createRule().inject(data), true);
   }
   else{
-    $("#btn-add-rule").removeAttr("disabled");
+    $("#navbar-bottom").removeAttr("disabled");
 
     if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
       event.data.editor.animateCss("fadeOutRight", function(){
@@ -265,7 +236,7 @@ function onCancel(event){
       });
     }
     else{
-      exchangeFromTo(event.data.editor, createNotify("HAS NO RULE"), true);
+      exchangeFromTo(event.data.editor, createNotify("EMPTY"), true);
     }
   }
 }
@@ -291,7 +262,7 @@ function onDelete(event){
     });
   }
   else{
-    exchangeFromTo(event.data.rule, $(".template-notify:last").clone(), true);
+    exchangeFromTo(event.data.rule, createNotify("EMPTY"), true);
   }
 }
 
@@ -299,12 +270,10 @@ function setEnabled(enabled){
   if(enabled == true){
     $("#btn-apply-active").removeClass("hidden");
     $("#btn-apply-inactive").addClass("hidden");
-    $("#screen-inactive").addClass("hidden");
   }
   else{
     $("#btn-apply-active").addClass("hidden");
     $("#btn-apply-inactive").removeClass("hidden");
-    $("#screen-inactive").removeClass("hidden");
   }
 }
 
