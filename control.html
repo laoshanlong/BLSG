@@ -17,19 +17,22 @@
     <section>
 
 			<!-- NavBar -->
-			<nav class="navbar navbar-inverse navbar-sticky-top">
+			<nav class="navbar navbar-inverse" id="navbar-control">
 				<div class="container-fluid">
 					<div class="navbar-header">
-						<span class="navbar-brand">BLSG</span>
+						<span class="navbar-brand">ㅂㄹㅅㄱ</span>
 					</div>
 					<button class="btn btn-danger navbar-btn" id="btn-add-rule">ADD</button>
 					<p class="navbar-text navbar-right">
-						<a role="button" id="btn-apply-active" style="color: #8CC152;">:ON</a>
-						<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9;">:OFF</a>
+						<a role="button" id="btn-apply-active" style="color: #8CC152; cursor: hand">:ON</a>
+						<a class="hidden" role="button" id="btn-apply-inactive" style="color: #CCD1D9; cursor: hand">:OFF</a>
 					</p>
 				</div>
 			</nav>
-			
+
+			<div class="hidden" id="screen-inactive">
+			</div>
+
 			<!-- RuleCollection -->
 			<div id="rule-collection">
 			</div>
@@ -39,9 +42,11 @@
 		<!-- Template -->
 		<div class="hidden" id="template">
 
-			<div class="template-empty" style="margin: 20px 0;">
+			<div class="template-notify" style="margin: 20px 0;">
 				<p class="text-center" style="margin-bottom: 0px;">
-					<span class="h1">HAS NO RULE</span>
+					<span class="h1" name="message">MESSAGE</span>
+					<br/>
+					<span class="h1" name="description"></span>
 				</p>
 			</div>
 

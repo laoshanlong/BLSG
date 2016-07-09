@@ -1,4 +1,4 @@
-/*extend*/
+/* Extend */
 $.fn.extend({
     animateCss: function (animationName, callback) {
         var animationEnd = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
@@ -30,7 +30,6 @@ $.fn.extend({
       return undefined;
     },
     inject: function(data){
-      $(this).attr("index", data.index);
       $(this).attr("data", JSON.stringify(data));
 
       if($(this).hasClass("template-rule") === true){
@@ -50,8 +49,6 @@ $.fn.extend({
       }
 
       if($(this).hasClass("template-editor") === true){
-        $(this).attr("index", data.index);
-
         $(this).find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
         $(this).find("[name|='input-rule']:not(.hidden)").addClass("hidden");
 
@@ -65,26 +62,114 @@ $.fn.extend({
     }
 });
 
-/*init*/
-$(".template-empty:last").clone().appendTo("#rule-collection").animateCss("fadeInLeft");
+/* Init */
+chrome.runtime.onMessage.addListener(function(request, sender){
+  console.log("command: " + request.command + " param: " + request.param);
+
+  switch(request.command){
+    case "ackGetInit":
+    ackGetInit(request.state, request.param);
+    break;
+
+    case "ackAddRule":
+    //addRule(request.param, sendResponse);
+    break;
+
+    case "ackEditRule":
+    //editRule(request.param, sendResponse);
+    break;
+
+    case "ackDeleteRule":
+    //deleteRule(request.param, sendResponse);
+    break;
+
+    case "ackSetEnabled":
+    ackSetEnabled(request.state, request.param);
+    break;
+
+    default:
+    console.log("undefined command: " +  request.command);
+    break;
+  }
+});
+
+/*
+let notifyInit = $(".template-notify:last").clone();
+
+notifyInit.find("[name='message']").text("INIT");
+notifyInit.appendTo("#rule-collection").animateCss("fadeInLeft", function(){
+  let description = notifyInit.find("[name='description']");
+
+  let interval = setInterval(function(){
+    let text = description.text();
+
+    if(text.length < 3){
+      text += ".";
+    }
+    else{
+      text = "";
+    }
+
+    description.text(text);
+  }, 350);
+});
+*/
 
 $("#btn-apply-active").on("click", function(){
-  $("#btn-apply-active").addClass("hidden");
-  $("#btn-apply-inactive").removeClass("hidden");
+  chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: false}});
 });
 
 $("#btn-apply-inactive").on("click", function(){
-  $("#btn-apply-active").removeClass("hidden");
-  $("#btn-apply-inactive").addClass("hidden");
+  chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: true}});
 })
 
 $("#btn-add-rule").on("click", onAdd);
 
-chrome.runtime.sendMessage({message: "hello"}, function(response){
-  $(".template-empty:first").find(".h1").text(response.message);
-});
+chrome.runtime.sendMessage({command: "rqstGetInit"});
 
-/*function*/
+/* Function */
+function ackGetInit(state, param){
+  setEnabled(param.enabled);
+
+  if(param.ruleCollection.length > 1){
+    //TODO add list
+  }
+  else{
+    createNotify("HAS NO RULE").appendTo("#rule-collection").animateCss("fadeInLeft");
+  }
+}
+
+function ackSetEnabled(state, param){
+  if(state == "error"){
+    return;
+  }
+
+  setEnabled(param.enabled);
+}
+
+function createNotify(message, description){
+  let notify = $(".template-notify:last").clone();
+
+  let messageElement = notify.find("[name='message']");
+
+  if(message !== undefined){
+    messageElement.text(message);
+  }
+  else{
+    messageElement.addClass("hidden");
+  }
+
+  let descriptionElement = notify.find("[name='description']");
+  if(description !== undefined){
+    descriptionElement.text(description);
+  }
+  else{
+    descriptionElement.addClass("hidden");
+  }
+
+  return notify;
+}
+
 function createEditor(){
   let editor = $("#template > .template-editor").clone();
 
@@ -123,10 +208,10 @@ function createRule(){
 function onAdd(){
   $("#btn-add-rule").attr("disabled", "disabled");
 
-  let editor = createEditor().inject({index: $("#rule-collection > .template-rule").length, category: "extension", rule: "", path: "", state: "new"});
+  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
 
-  if($("#rule-collection > .template-empty").length > 0){
-    exchangeFromTo($("#rule-collection > .template-empty"), editor);
+  if($("#rule-collection > .template-notify").length > 0){
+    exchangeFromTo($("#rule-collection > .template-notify"), editor);
   }
   else{
     editor.appendTo("#rule-collection").animateCss("fadeInLeft");
@@ -174,13 +259,13 @@ function onCancel(event){
   else{
     $("#btn-add-rule").removeAttr("disabled");
 
-    if($("#rule-collection").children(":not([name='template-empty']) :not(.fadeOutRight)").length > 1){
+    if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
       event.data.editor.animateCss("fadeOutRight", function(){
         event.data.editor.detach();
       });
     }
     else{
-      exchangeFromTo(event.data.editor, $(".template-empty:last").clone(), true);
+      exchangeFromTo(event.data.editor, createNotify("HAS NO RULE"), true);
     }
   }
 }
@@ -200,13 +285,26 @@ function onDelete(event){
   event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
 
-  if($("#rule-collection").children(":not([name='template-empty']) :not(.fadeOutRight)").length > 1){
+  if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
     event.data.rule.animateCss("fadeOutRight", function(){
       event.data.rule.detach();
     });
   }
   else{
-    exchangeFromTo(event.data.rule, $(".template-empty:last").clone(), true);
+    exchangeFromTo(event.data.rule, $(".template-notify:last").clone(), true);
+  }
+}
+
+function setEnabled(enabled){
+  if(enabled == true){
+    $("#btn-apply-active").removeClass("hidden");
+    $("#btn-apply-inactive").addClass("hidden");
+    $("#screen-inactive").addClass("hidden");
+  }
+  else{
+    $("#btn-apply-active").addClass("hidden");
+    $("#btn-apply-inactive").removeClass("hidden");
+    $("#screen-inactive").removeClass("hidden");
   }
 }
 
