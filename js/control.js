@@ -119,6 +119,14 @@ $("#btn-apply-inactive").on("click", function(){
   chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: true}});
 })
 
+$(".navbar-brand").on("click", function(){
+  $(".popup").removeClass("hidden");
+});
+
+$(".popup").on("click", function(){
+  $(".popup").addClass("hidden");
+});
+
 $("#navbar-bottom").on("click", onAdd);
 
 chrome.runtime.sendMessage({command: "rqstGetInit"});
