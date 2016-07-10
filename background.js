@@ -1,10 +1,13 @@
+let debug = false;
 let enabled = true;
 let ruleCollection = [];
 
 /* Init */
 chrome.storage.local.get(["enabled", "ruleCollection"], function(items){
   if(chrome.runtime.lastError){
-    console.log(chrome.runtime.lastError);
+    if(debug){
+      console.error(chrome.runtime.lastError);
+    }
 
     return;
   }
@@ -23,7 +26,9 @@ chrome.storage.local.get(["enabled", "ruleCollection"], function(items){
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender){
-  console.log("command: " + request.command + " param: " + request.param);
+  if(debug){
+    console.log("command: " + request.command + " param: " + request.param);
+  }
 
   switch(request.command){
     case "rqstGetInit":
@@ -47,13 +52,15 @@ chrome.runtime.onMessage.addListener(function(request, sender){
     break;
 
     default:
-    console.log("undefined command: " +  request.command);
+    if(debug){
+      console.warn("undefined command: " +  request.command);
+    }
     break;
   }
 });
 
 function rqstGetInit(){
-  chrome.runtime.sendMessage({command: "ackGetInit", state: "success", param: {enabled: enabled, ruleCollection: ruleCollection}});
+  chrome.runtime.sendMessage({command: "ackGetInit", state: "success", param: {debug:debug, enabled: enabled, ruleCollection: ruleCollection}});
 }
 
 function rqstAddRule(param){
@@ -63,7 +70,9 @@ function rqstAddRule(param){
     if(chrome.runtime.lastError){
       ruleCollection.pop();
 
-      console.log(chrome.runtime.lastError);
+      if(debug){
+        console.error(chrome.runtime.lastError);
+      }
 
       chrome.runtime.sendMessage({command: "ackAddRule", state: "error", param: {error: chrome.runtime.lastError}});
 
@@ -83,7 +92,9 @@ function rqstEditRule(param, sendResponse){
     if(chrome.runtime.lastError){
       ruleCollection[param.index] = old;
 
-      console.log(chrome.runtime.lastError);
+      if(debug){
+        console.error(chrome.runtime.lastError);
+      }
 
       chrome.runtime.sendMessage({command: "ackEditRule", state: "error", param: {error: chrome.runtime.lastError}});
 
@@ -101,7 +112,9 @@ function rqstDeleteRule(param, sendResponse){
     if(chrome.runtime.lastError){
       ruleCollection.splice(param.index, 0, remove);
 
-      console.log(chrome.runtime.lastError);
+      if(debug){
+        console.error(chrome.runtime.lastError);
+      }
 
       chrome.runtime.sendMessage({command: "ackDeleteRule", state: "error", param: {error: chrome.runtime.lastError}});
 
@@ -121,7 +134,9 @@ function rqstSetEnabled(param){
     if(chrome.runtime.lastError){
       enabled = old;
 
-      console.log(chrome.runtime.lastError);
+      if(debug){
+        console.error(chrome.runtime.lastError);
+      }
 
       chrome.runtime.sendMessage({command: "ackSetEnabled", state: "error", param: {error: chrome.runtime.lastError}});
 
@@ -137,7 +152,9 @@ chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, sugges
     return;
   }
 
-  console.log("given: "+downloadItem.filename);
+  if(debug){
+    console.log("given: "+downloadItem.filename);
+  }
 
   for(let rule of ruleCollection){
     let matched = false;
@@ -152,7 +169,9 @@ chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, sugges
       break;
 
       default:
-      console.log("undefined category: " + rule.category);
+      if(debug){
+        console.warn("undefined category: " + rule.category);
+      }
       break;
     }
 
@@ -173,7 +192,9 @@ function matchTestExtension(rule, filename){
     return regexp.test(filename);
   }
   catch(exception){
-    console.log(exception);
+    if(debug){
+      console.error(exception);
+    }
 
     return false;
   }
@@ -186,7 +207,9 @@ function matchTestRegex(rule, filename){
     return regexp.test(filename);
   }
   catch(exception){
-    console.log(exception);
+    if(debug){
+      console.error(exception);
+    }
 
     return false;
   }

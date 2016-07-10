@@ -1,3 +1,5 @@
+let debug = false;
+
 /* Extend */
 $.fn.extend({
     animateCss: function (animationName, callback) {
@@ -76,7 +78,9 @@ $.fn.extend({
 
 /* Init */
 chrome.runtime.onMessage.addListener(function(request, sender){
-  console.log("command: " + request.command + " param: " + request.param);
+  if(debug){
+    console.log("command: " + request.command + " param: " + request.param);
+  }
 
   switch(request.command){
     case "ackGetInit":
@@ -100,7 +104,9 @@ chrome.runtime.onMessage.addListener(function(request, sender){
     break;
 
     default:
-    console.log("undefined command: " +  request.command);
+    if(debug){
+      console.warn("undefined command: " +  request.command);
+    }
     break;
   }
 });
@@ -119,6 +125,8 @@ chrome.runtime.sendMessage({command: "rqstGetInit"});
 
 /* Function */
 function ackGetInit(state, param){
+  debug = param.debug;
+
   setEnabled(param.enabled);
 
   if(param.ruleCollection.length > 0){
@@ -290,7 +298,7 @@ function onSubmit(event){
   if(hasError == true){
     return;
   }
-  
+
   event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
   event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
