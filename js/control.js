@@ -267,14 +267,30 @@ function onSubmit(event){
     return;
   }
 
+  let hasError = false;
+
   if(data.rule === undefined || data.rule === ""){
-    return;
+    event.data.editor.find("[name|='input-rule']:first").parent().addClass("has-error")
+
+    hasError = true;
+  }
+  else{
+    event.data.editor.find("[name|='input-rule']:first").parent().removeClass("has-error")
   }
 
   if(data.path === undefined || data.path === ""){
-    return;
+    event.data.editor.find("[name='input-path']").parent().addClass("has-error")
+
+    hasError = true;
+  }
+  else{
+    event.data.editor.find("[name='input-path']").parent().removeClass("has-error")
   }
 
+  if(hasError == true){
+    return;
+  }
+  
   event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
   event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
