@@ -133,7 +133,61 @@ function rqstSetEnabled(param){
 }
 
 chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, suggest){
-  console.log("original: "+downloadItem.filename);
+  if(enabled == false || ruleCollection === undefined){
+    return;
+  }
 
-  suggest({filename: "adding/"+downloadItem.filename});
+  console.log("given: "+downloadItem.filename);
+
+  for(let rule of ruleCollection){
+    let matched = false;
+
+    switch(rule.category){
+      case "extension":
+      matched = matchTestExtension(rule, downloadItem.filename);
+      break;
+
+      case "regex":
+      matched = matchTestRegex(rule, downloadItem.filename);
+      break;
+
+      default:
+      console.log("undefined category: " + rule.category);
+      break;
+    }
+
+    if(matched == false){
+      continue;
+    }
+
+    suggest({filename: rule.path + "/" + downloadItem.filename});
+
+    break;
+  }
 });
+
+function matchTestExtension(rule, filename){
+  try{
+    let regexp = new RegExp("\\." + rule.rule.replace(".", "\\."));
+
+    return regexp.test(filename);
+  }
+  catch(exception){
+    console.log(exception);
+
+    return false;
+  }
+}
+
+function matchTestRegex(rule, filename){
+  try{
+    let regexp = new RegExp(rule.rule);
+
+    return regexp.test(filename);
+  }
+  catch(exception){
+    console.log(exception);
+
+    return false;
+  }
+}
