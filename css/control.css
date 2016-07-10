@@ -42,8 +42,29 @@ a[role="button"]{
 }
 
 .template .h3{
-	margin-top: 0;
+	margin-top: 5px;
 	margin-bottom: 5px;
+}
+
+.template .rule{
+	max-width: 330px;
+	display: inline-block;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.template .rule-prefix, .rule-suffix{
+	padding: 0px 2px 0px 2px;
+	color: #000;
+}
+
+.template .rule-prefix{
+	float: left;
+}
+
+.template .rule-suffix{
+	float: right;
 }
 
 .template p:last-child{
@@ -59,7 +80,7 @@ a[role="button"]{
 }
 
 .template-rule{
-	min-height: 116px;
+	min-height: 119px;
 }
 
 .template-rule-extension{
@@ -94,7 +115,7 @@ a[role="button"]{
 	border: 0px;
 }
 
-.btn, .input-group-addon, .form-control{
+.btn, .input-group-addon, .form-control, .dropdown-menu{
 	border-radius: 0px;
 }
 

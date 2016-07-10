@@ -38,7 +38,26 @@ $.fn.extend({
         $(this).find("[name='category']").text(":" + data.category.toUpperCase());
         $(this).find("[name='rule']").text(data.rule);
         $(this).find("[name='path']").text(data.path);
-        $(this).find("[name='path-rule']").text(data.rule);
+
+        let rulePrefix, ruleSuffix;
+        switch (data.category) {
+          case "extension":
+          rulePrefix = ".";
+          ruleSuffix = "";
+          break;
+
+          case "regex":
+          rulePrefix = "/";
+          ruleSuffix = "/g";
+          break;
+
+          default:
+          rulePrefix = ruleSuffix = "";
+          break;
+        }
+
+        $(this).find(".rule-prefix").removeClass("hidden").text(rulePrefix);;
+        $(this).find(".rule-suffix").removeClass("hidden").text(ruleSuffix);
       }
 
       if($(this).hasClass("template-editor") === true){
@@ -65,15 +84,15 @@ chrome.runtime.onMessage.addListener(function(request, sender){
     break;
 
     case "ackAddRule":
-    //addRule(request.param, sendResponse);
+    ackAddRule(request.state, request.param);
     break;
 
     case "ackEditRule":
-    //editRule(request.param, sendResponse);
+    ackEditRule(request.state, request.param);
     break;
 
     case "ackDeleteRule":
-    //deleteRule(request.param, sendResponse);
+    ackDeleteRule(request.state, request.param);
     break;
 
     case "ackSetEnabled":
@@ -102,11 +121,61 @@ chrome.runtime.sendMessage({command: "rqstGetInit"});
 function ackGetInit(state, param){
   setEnabled(param.enabled);
 
-  if(param.ruleCollection.length > 1){
-    //TODO add list
+  if(param.ruleCollection.length > 0){
+    for(let rule of param.ruleCollection){
+      createRule().inject(rule).appendTo("#rule-collection").animateCss("fadeInLeft");
+    }
   }
   else{
     createNotify("EMPTY").appendTo("#rule-collection").animateCss("fadeInLeft");
+  }
+}
+
+function ackAddRule(state, param){
+  let editor = $("#rule-collection > .template-editor:last");
+
+  if(state == "error"){
+    editor.find("[name='btn-submit']").removeAttr("disabled");
+    editor.find("[name='btn-cancel']").removeAttr("disabled");
+
+    return;
+  }
+
+  exchangeFromTo(editor, createRule().inject(param.rule));
+
+  $("#navbar-bottom").removeAttr("disabled");
+}
+
+function ackEditRule(state, param){
+  let editor = $("#rule-collection > .template").eq(param.index);
+
+  if(state == "error"){
+    editor.find("[name='btn-submit']").removeAttr("disabled");
+    editor.find("[name='btn-cancel']").removeAttr("disabled");
+
+    return;
+  }
+
+  exchangeFromTo(editor, createRule().inject(param.rule));
+}
+
+function ackDeleteRule(state, param){
+  let rule = $("#rule-collection > .template").eq(param.index);
+
+  if(state == "error"){
+    rule.find("[name='btn-edit']").removeAttr("disabled");
+    rule.find("[name='btn-delete']").removeAttr("disabled");
+
+    return;
+  }
+
+  if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
+    rule.animateCss("fadeOutRight", function(){
+      rule.detach();
+    });
+  }
+  else{
+    exchangeFromTo(rule, createNotify("EMPTY"));
   }
 }
 
@@ -209,13 +278,16 @@ function onSubmit(event){
   event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
   event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
-  if(data.state === "new"){
-    $("#navbar-bottom").removeAttr("disabled");
+  if(data.state == "new"){
+    data.state = "contain";
+
+    chrome.runtime.sendMessage({command: "rqstAddRule", param: {rule: data}});
   }
+  else{
+    let index = $("#rule-collection > .template").index(event.data.editor);
 
-  data.state = "contain";
-
-  exchangeFromTo(event.data.editor, createRule().inject(data), true);
+    chrome.runtime.sendMessage({command: "rqstEditRule", param: {index: index, rule: data}});
+  }
 }
 
 function onCancel(event){
@@ -225,7 +297,7 @@ function onCancel(event){
   let data = event.data.editor.extract();
 
   if(data.state === "contain"){
-    exchangeFromTo(event.data.editor, createRule().inject(data), true);
+    exchangeFromTo(event.data.editor, createRule().inject(data));
   }
   else{
     $("#navbar-bottom").removeAttr("disabled");
@@ -236,7 +308,7 @@ function onCancel(event){
       });
     }
     else{
-      exchangeFromTo(event.data.editor, createNotify("EMPTY"), true);
+      exchangeFromTo(event.data.editor, createNotify("EMPTY"));
     }
   }
 }
@@ -256,14 +328,9 @@ function onDelete(event){
   event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
 
-  if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
-    event.data.rule.animateCss("fadeOutRight", function(){
-      event.data.rule.detach();
-    });
-  }
-  else{
-    exchangeFromTo(event.data.rule, createNotify("EMPTY"), true);
-  }
+  let index = $("#rule-collection > .template").index(event.data.rule);
+
+  chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {index: index}});
 }
 
 function setEnabled(enabled){
