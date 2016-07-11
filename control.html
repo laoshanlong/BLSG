@@ -32,7 +32,7 @@
 			</div>
 
 			<!-- NavBar -->
-			<a class="btn btn-danger btn-xs" id="navbar-bottom">ADD</a>
+			<a class="btn btn-danger btn-xs" id="navbar-bottom">NEW</a>
 
     </section>
 
@@ -48,24 +48,29 @@
 			</div>
 
 			<div class="template template-rule">
-				<div class="template-button-container">
+				<div class="button-container-0">
 					<button class="btn btn-info btn-xs" name="btn-edit">EDIT</button>
-					<button class="btn btn-inverse btn-xs" name="btn-delete">DELETE</button>
+					<button class="btn btn-normal btn-xs" name="btn-delete">DELETE</button>
 				</div>
+				<div class="button-container-1">
+					<button class="btn btn-danger btn-xs btn-block" name="btn-add-child" style="width: 102px;">ADD</button>
+				</div>
+
 				<span class="label label-normal" name="category">:CATEGORY</span>
 				<br/>
 				<div class="h3 rule">
-					<div class="rule-prefix"></div>
-					<div class="rule-suffix"></div>
-					<span name="rule">RULE</span>
+					<div class="rule-prefix">/</div>
+					<div class="rule-suffix">/g</div>
+					<span name="rule">RULE--------------------------------</span>
 				</div>
 				<p>
 					<span class="glyphicon glyphicon-home" aria-hidden="true"/> / <code name="path">PATH</code>
 				</p>
+				<!--<a class="btn btn-danger btn-xs btn-block button-bottom" role="button" name="btn-add-child">ADD CHILD</a>-->
 			</div>
 
 			<div class="template template-editor">
-				<div class="template-button-container">
+				<div class="button-container-0">
 					<button class="btn btn-success btn-xs" name="btn-submit">SUBMIT</button>
 					<button class="btn btn-danger btn-xs" name="btn-cancel">CANCEL</button>
 				</div>
@@ -81,7 +86,7 @@
 				<form style="margin-top: 5px; margin-bottom: 0px;">
 					<div class="form-group">
 						<div class="input-group" name="input-rule-extension">
-							<span class="input-group-addon"><strong>.</storn></span>
+							<span class="input-group-addon"><strong>.</strong></span>
 							<input class="form-control" type="text" placeholder="rule"/>
 						</div>
 						<div class="input-group hidden" name="input-rule-regex">

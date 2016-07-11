@@ -127,7 +127,22 @@ $(".popup").on("click", function(){
   $(".popup").addClass("hidden");
 });
 
-$("#navbar-bottom").on("click", onAdd);
+$("#navbar-bottom").on("click", function(){
+  $(this).attr("disabled", "disabled");
+
+  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
+
+  if($("#rule-collection > .template-notify").length > 0){
+    exchangeFromTo($("#rule-collection > .template-notify"), editor);
+  }
+  else{
+    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
+  }
+
+  let container = $("#rule-collection")
+
+  container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
+});
 
 chrome.runtime.sendMessage({command: "rqstGetInit"});
 
@@ -257,23 +272,9 @@ function createRule(){
 
   rule.find("[name='btn-edit']").on("click", {rule: rule}, onEdit);
   rule.find("[name='btn-delete']").on("click", {rule: rule}, onDelete);
+  rule.find("[name='btn-add-child']").on("click", {rule: rule}, onAddChild);
 
   return rule;
-}
-
-function onAdd(){
-  $("#navbar-bottom").attr("disabled", "disabled");
-
-  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
-
-  if($("#rule-collection > .template-notify").length > 0){
-    exchangeFromTo($("#rule-collection > .template-notify"), editor);
-  }
-  else{
-    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
-  }
-
-  $("#rule-collection").animate({scrollTop: editor.offset().top}, 500);
 }
 
 function onSubmit(event){
@@ -329,7 +330,9 @@ function onCancel(event){
   let data = event.data.editor.extract();
 
   if(data.state === "contain"){
-    exchangeFromTo(event.data.editor, createRule().inject(data));
+    let rule = event.data.editor.hasClass("template-child") == false ? createRule() : createRule().addClass("template-child");
+
+    exchangeFromTo(event.data.editor, rule.inject(data));
   }
   else{
     $("#navbar-bottom").removeAttr("disabled");
@@ -343,26 +346,54 @@ function onCancel(event){
       exchangeFromTo(event.data.editor, createNotify("EMPTY"));
     }
   }
+
+  let parent = event.data.editor.attr("parent");
+
+  if(parent !== undefined){
+    parent = $("#rule-collection > .template").eq(parent);
+
+    parent.find("[name='btn-edit']").removeAttr("disabled");
+    parent.find("[name='btn-delete']").removeAttr("disabled");
+    parent.find("[name='btn-add-child']").removeAttr("disabled");
+  }
 }
 
 function onEdit(event){
   event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
   let editor = createEditor().inject(event.data.rule.extract());
 
   exchangeFromTo(event.data.rule, editor);
 
-  $("section").animate({scrollTop: editor.offset().top}, 500);
+  let container = $("#rule-collection")
+
+  container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
 }
 
 function onDelete(event){
   event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
   let index = $("#rule-collection > .template").index(event.data.rule);
 
   chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {index: index}});
+}
+
+function onAddChild(event){
+  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
+
+  let editor = createEditor().addClass("template-child").inject({category: "extension", rule: "", path: "", state: "new"}).attr("parent", $("#rule-collection > .template").index(event.data.rule));
+
+  editor.insertAfter(event.data.rule).animateCss("fadeInLeft");;
+
+  let container = $("#rule-collection")
+
+  container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
 }
 
 function setEnabled(enabled){
