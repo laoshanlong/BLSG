@@ -119,30 +119,7 @@ $("#btn-apply-inactive").on("click", function(){
   chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: true}});
 })
 
-$(".navbar-brand").on("click", function(){
-  $(".popup").removeClass("hidden");
-});
-
-$(".popup").on("click", function(){
-  $(".popup").addClass("hidden");
-});
-
-$("#navbar-bottom").on("click", function(){
-  $(this).attr("disabled", "disabled");
-
-  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
-
-  if($("#rule-collection > .template-notify").length > 0){
-    exchangeFromTo($("#rule-collection > .template-notify"), editor);
-  }
-  else{
-    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
-  }
-
-  let container = $("#rule-collection")
-
-  container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
-});
+$("[name='btn-add-new']").on("click", onAddNew);
 
 chrome.runtime.sendMessage({command: "rqstGetInit"});
 
@@ -380,6 +357,23 @@ function onDelete(event){
   let index = $("#rule-collection > .template").index(event.data.rule);
 
   chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {index: index}});
+}
+
+function onAddNew(){
+  $(this).attr("disabled", "disabled");
+
+  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
+
+  if($("#rule-collection > .template-notify").length > 0){
+    exchangeFromTo($("#rule-collection > .template-notify"), editor);
+  }
+  else{
+    editor.appendTo("#rule-collection").animateCss("fadeInLeft");
+  }
+
+  let container = $("#rule-collection")
+
+  container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
 }
 
 function onAddChild(event){

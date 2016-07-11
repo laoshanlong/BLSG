@@ -60,7 +60,7 @@ a[role="button"]{
 	margin-bottom: 5px;
 }
 
-.template-rule .rule{
+.template-rule .rule-group{
 	max-width: 360px;
 	display: inline-block;
 	overflow-x: hidden;
@@ -68,7 +68,7 @@ a[role="button"]{
 	white-space: nowrap;
 }
 
-.template-child .rule{
+.template-child .rule-group{
 	max-width: 340px;
 }
 
