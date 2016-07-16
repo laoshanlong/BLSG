@@ -156,11 +156,7 @@ function ackGetInit(state, param){
 
       $("<div></div>").addClass("child-collection").appendTo("#rule-collection");
 
-      if(rule["childCollection"] === undefined){
-        continue;
-      }
-
-      for(let child of rule.childCollection){
+      for(let child of rule.children){
         createRule().addClass("template-child").inject(child).appendTo(".child-collection:last").animateCss("fadeInLeft");
       }
     }

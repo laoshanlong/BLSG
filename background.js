@@ -122,6 +122,10 @@ function rqstEditRule(param, sendResponse){
       return;
     }
 
+    if(param.rule.rule != old.rule && regexpCollection[old.rule] !== undefined){
+      regexpCollection[old.rule] = undefined;
+    }
+
     chrome.runtime.sendMessage({command: "ackEditRule", state: "success", param: {parent: param.parent, index: param.index, rule: param.rule}});
   });
 }
@@ -152,6 +156,10 @@ function rqstDeleteRule(param, sendResponse){
       chrome.runtime.sendMessage({command: "ackDeleteRule", state: "error", param: {error: chrome.runtime.lastError}});
 
       return;
+    }
+
+    if(regexpCollection[remove.rule] !== undefined){
+      regexpCollection[remove.rule] = undefined;
     }
 
     chrome.runtime.sendMessage({command: "ackDeleteRule", state: "success", param: {parent: param.parent, index: param.index}});
