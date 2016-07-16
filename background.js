@@ -1,6 +1,7 @@
 let debug = false;
 let enabled = true;
 let ruleCollection = [];
+let regexpCollection = [];
 
 /* Init */
 chrome.storage.local.get(["enabled", "ruleCollection"], function(items){
@@ -70,11 +71,7 @@ function rqstAddRule(param){
   else{
     let parent = ruleCollection[param.parent];
 
-    if(parent["childCollection"] === undefined){
-      parent["childCollection"] = [];
-    }
-
-    parent.childCollection.push(param.rule);
+    parent.children.push(param.rule);
   }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
@@ -100,14 +97,11 @@ function rqstEditRule(param, sendResponse){
   if(param.parent < 0 ){
     old = ruleCollection[param.index];
     ruleCollection[param.index] = param.rule;
-
-    if(old["childCollection"] !== undefined){
-      ruleCollection[param.index]["childCollection"] = old.childCollection;
-    }
+    ruleCollection[param.index].children = old.children;
   }
   else{
-    old = ruleCollection[param.parent].childCollection[param.index];
-    ruleCollection[param.parent].childCollection[param.index] = param.rule;
+    old = ruleCollection[param.parent].children[param.index];
+    ruleCollection[param.parent].children[param.index] = param.rule;
   }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
@@ -116,7 +110,7 @@ function rqstEditRule(param, sendResponse){
         ruleCollection[param.index] = old;
       }
       else{
-        ruleCollection[param.parent].childCollection[param.index] = old;
+        ruleCollection[param.parent].children[param.index] = old;
       }
 
       if(debug){
@@ -139,7 +133,7 @@ function rqstDeleteRule(param, sendResponse){
     remove = ruleCollection.splice(param.index, 1)[0];
   }
   else{
-    remove = ruleCollection[param.parent].childCollection.splice(param.index, 1)[0];
+    remove = ruleCollection[param.parent].children.splice(param.index, 1)[0];
   }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
@@ -148,7 +142,7 @@ function rqstDeleteRule(param, sendResponse){
         ruleCollection.splice(param.index, 0, remove);
       }
       else{
-        ruleCollection[param.parent].childCollection.splice(param.index, 0, remove);
+        ruleCollection[param.parent].children.splice(param.index, 0, remove);
       }
 
       if(debug){
@@ -192,19 +186,40 @@ chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, sugges
   }
 
   if(debug){
-    console.log("given: "+downloadItem.filename);
+    console.log("given: " + downloadItem.filename);
+    console.log("given: " + downloadItem.referrer);
   }
 
-  for(let rule of ruleCollection){
+  suggest({filename: getSuggestion(ruleCollection, downloadItem)});
+});
+
+function getSuggestion(testPool, downloadItem){
+  for(let rule of testPool){
     let matched = false;
 
     switch(rule.category){
-      case "extension":
-      matched = matchTestExtension(rule, downloadItem.filename);
+      case "file-extension":
+      matched = downloadItem.filename.endsWith("." + rule.rule);
       break;
 
-      case "regex":
-      matched = matchTestRegex(rule, downloadItem.filename);
+      case "file-regex":
+      if(regexpCollection[rule.rule] === undefined){
+        regexpCollection[rule.rule] = new RegExp(rule.rule);
+      }
+
+      matched = regexpCollection[rule.rule].test(downloadItem.filename);
+      break;
+
+      case "site-address":
+      matched = downloadItem.referrer.replace("https://", "").replace("http://", "").startsWith(rule.rule);
+      break;
+
+      case "site-regex":
+      if(regexpCollection[rule.rule] === undefined){
+        regexpCollection[rule.rule] = new RegExp(rule.rule);
+      }
+
+      matched = regexpCollection[rule.rule].test(downloadItem.referrer);
       break;
 
       default:
@@ -218,38 +233,12 @@ chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, sugges
       continue;
     }
 
-    suggest({filename: rule.path + "/" + downloadItem.filename});
-
-    break;
-  }
-});
-
-function matchTestExtension(rule, filename){
-  try{
-    let regexp = new RegExp("\\." + rule.rule.replace(".", "\\."));
-
-    return regexp.test(filename);
-  }
-  catch(exception){
-    if(debug){
-      console.error(exception);
+    if(rule.children.length > 0){
+      return rule.path + "/" + getSuggestion(rule.children, downloadItem);
     }
 
-    return false;
+    return rule.path + "/" + downloadItem.filename;
   }
-}
 
-function matchTestRegex(rule, filename){
-  try{
-    let regexp = new RegExp(rule.rule);
-
-    return regexp.test(filename);
-  }
-  catch(exception){
-    if(debug){
-      console.error(exception);
-    }
-
-    return false;
-  }
+  return downloadItem.filename;
 }

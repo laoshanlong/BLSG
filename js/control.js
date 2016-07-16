@@ -23,7 +23,7 @@ $.fn.extend({
 
       if($(this).hasClass("template-editor") === true){
         data.category = $(this).find("[name|='dropdown-category'][active]").attr("name").replace("dropdown-category-", "");
-        data.rule = $(this).find("[name='input-rule-"+data.category+"']").find("input").val();
+        data.rule = $(this).find("[name|='input-rule']:not(.hidden)").find("input").val();
         data.path = $(this).find("[name='input-path']").val();
 
         return data;
@@ -37,24 +37,26 @@ $.fn.extend({
       if($(this).hasClass("template-rule") === true){
         $(this).addClass("template-rule-" + data.category)
 
-        $(this).find("[name='category']").text(":" + data.category.toUpperCase());
+        $(this).find("[name='category']").text(data.category.toUpperCase().replace("-", " : "));
         $(this).find("[name='rule']").text(data.rule);
         $(this).find("[name='path']").text(data.path);
 
         let rulePrefix, ruleSuffix;
         switch (data.category) {
-          case "extension":
+          case "file-extension":
           rulePrefix = ".";
           ruleSuffix = "";
           break;
 
-          case "regex":
-          rulePrefix = "/";
-          ruleSuffix = "/g";
+          case "site-address":
+          rulePrefix = "http(or s)://";
+          ruleSuffix = "";
           break;
 
-          default:
-          rulePrefix = ruleSuffix = "";
+          case "file-regex":
+          case "site-regex":
+          rulePrefix = "/";
+          ruleSuffix = "/g";
           break;
         }
 
@@ -66,9 +68,28 @@ $.fn.extend({
         $(this).find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
         $(this).find("[name|='input-rule']:not(.hidden)").addClass("hidden");
 
-        $(this).find("[name='dropdown-category-"+data.category+"']").attr("active", "").css("color", "#8CC152");
-        $(this).find("[name='lbl-dropdown-category']").text(":" + data.category.toUpperCase());
-        $(this).find("[name='input-rule-"+data.category+"']").removeClass("hidden").find("input").val(data.rule);
+        $(this).find("[name='dropdown-category-"+data.category+"']").attr("active", "");
+        $(this).find("[name='lbl-dropdown-category']").text(data.category.toUpperCase().replace("-", " : "));
+
+        let inputGroupName = "input-rule-";
+
+        switch(data.category){
+          case "file-extension":
+          inputGroupName += "extension";
+          break;
+
+          case "site-address":
+          inputGroupName += "site";
+          break;
+
+          case "file-regex":
+          case "site-regex":
+          inputGroupName += "regex";
+          break;
+        }
+
+        $(this).find("[name='" + inputGroupName + "']").removeClass("hidden").find("input").val(data.rule);
+
         $(this).find("[name='input-path']").val(data.path);
       }
 
@@ -286,10 +307,28 @@ function createEditor(){
       editor.find("[name|='dropdown-category'][active]").removeAttr("active").removeAttr("style");
       let edited = editor.find("[name|='input-rule']:not(.hidden)").addClass("hidden").find("input").val();
 
-      category.attr("active", "").css("color", "#8CC152");
+      category.attr("active", "");
 
       editor.find("[name='lbl-dropdown-category']").text(category.text());
-      editor.find("[name='input-rule-"+category.attr("name").replace("dropdown-category-", "")+"']").removeClass("hidden").find("input").val(edited);
+
+      let inputGroupName = "input-rule-";
+
+      switch(category.attr("name").replace("dropdown-category-", "")){
+        case "file-extension":
+        inputGroupName += "extension";
+        break;
+
+        case "site-address":
+        inputGroupName += "site";
+        break;
+
+        case "file-regex":
+        case "site-regex":
+        inputGroupName += "regex";
+        break;
+      }
+
+      editor.find("[name='" + inputGroupName + "']").removeClass("hidden").find("input").val(edited);
     });
   });
 
@@ -438,7 +477,7 @@ function onDelete(event){
 function onAddNew(){
   $(this).attr("disabled", "disabled");
 
-  let editor = createEditor().inject({category: "extension", rule: "", path: "", state: "new"});
+  let editor = createEditor().inject({category: "file-extension", rule: "", path: "", children: [], state: "new"});
 
   if($("#rule-collection > .template-notify").length > 0){
     exchangeFromTo($("#rule-collection > .template-notify"), editor);
@@ -457,7 +496,16 @@ function onAddChild(event){
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
-  let editor = createEditor().addClass("template-child").inject({category: "extension", rule: "", path: "", state: "new"}).attr("parent", $("#rule-collection > .template").index(event.data.rule));
+  let editor = createEditor().addClass("template-child")
+
+  if(event.data.rule.extract().category.startsWith("file-") == true){
+    editor.inject({category: "site-address", rule: "", path: "", children: [], state: "new"});
+    editor.find(".dropdown-menu > li > [name|='dropdown-category-file']").parent().addClass("disabled");
+  }
+  else{
+    editor.inject({category: "file-extension", rule: "", path: "", children: [], state: "new"});
+    editor.find(".dropdown-menu > li > [name|='dropdown-category-site']").parent().addClass("disabled");
+  }
 
   editor.appendTo(event.data.rule.next()).animateCss("fadeInLeft");;
 

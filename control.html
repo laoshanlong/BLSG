@@ -62,7 +62,7 @@
 
 				<span class="label label-normal" name="category">:CATEGORY</span>
 				<br/>
-				<div class="h3 rule-group">
+				<div class="h4 rule-group">
 					<div class="rule-prefix"></div>
 					<div class="rule-suffix"></div>
 					<span name="rule">RULE</span>
@@ -80,24 +80,28 @@
 				</div>
 				<div class="btn-group">
 					<button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-						<span name="lbl-dropdown-category">:EXTENSION </span><span class="caret"></span>
+						<span name="lbl-dropdown-category">GROUP : DETAIL </span><span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a role="button" name="dropdown-category-extension" active style="color: #8CC152;">FILE:EXTENSION</a></li>
-						<li><a role="button" name="dropdown-category-regex">FILE:REGEX</a></li>
-						<li class="disabled"><a role="button" name="dropdown-category-site-address">SITE:ADDRESS</a></li>
-						<li class="disabled"><a role="button" name="dropdown-category-site-regex">SITE:REGEX</a></li>
+						<li><a role="button" name="dropdown-category-file-extension" active>FILE : EXTENSION</a></li>
+						<li><a role="button" name="dropdown-category-file-regex">FILE : REGEX</a></li>
+						<li><a role="button" name="dropdown-category-site-address">SITE : ADDRESS</a></li>
+						<li><a role="button" name="dropdown-category-site-regex">SITE : REGEX</a></li>
 					</ul>
 				</div>
 				<form style="margin-top: 5px; margin-bottom: 0px;">
 					<div class="form-group">
 						<div class="input-group" name="input-rule-extension">
 							<span class="input-group-addon"><strong>.</strong></span>
-							<input class="form-control" type="text" placeholder="rule"/>
+							<input class="form-control" type="text" placeholder="file extension(.zip or etc)"/>
+						</div>
+						<div class="input-group hidden" name="input-rule-site">
+							<span class="input-group-addon"><strong>http(or s)://</strong></span>
+							<input class="form-control" type="text" placeholder="site address(www.google.com or etc)"/>
 						</div>
 						<div class="input-group hidden" name="input-rule-regex">
 							<span class="input-group-addon"><strong>/</strong></span>
-							<input class="form-control" type="text" placeholder="rule"/>
+							<input class="form-control" type="text" placeholder="regular expression"/>
 							<span class="input-group-addon"><strong>/g</strong></span>
 						</div>
 					</div>

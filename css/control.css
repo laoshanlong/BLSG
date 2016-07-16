@@ -55,13 +55,13 @@ a[role="button"]{
 	display: none;
 }
 
-.template-rule .h3{
+.template-rule .h4{
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
 
 .template-rule .rule-group{
-	max-width: 360px;
+	max-width: 355px;
 	display: inline-block;
 	overflow-x: hidden;
 	text-overflow: ellipsis;
@@ -69,12 +69,12 @@ a[role="button"]{
 }
 
 .template-child .rule-group{
-	max-width: 340px;
+	max-width: 335px;
 }
 
 .template .rule-prefix, .rule-suffix{
 	padding: 0px 2px 0px 2px;
-	color: #000;
+	color: #AAB2BD;
 }
 
 .template .rule-prefix{
@@ -101,32 +101,64 @@ a[role="button"]{
 	min-height: 99px;
 }
 
-.template-rule-extension{
+.template-rule-file-extension{
     border-left-color: #5D9CEC;
 }
 
-.template-rule-extension .h3{
+.template-rule-file-extension .h4{
     color: #5D9CEC;
 }
 
-.template-rule-extension .label{
+.template-rule-file-extension .label{
     background-color: #5D9CEC;
 }
 
-.template-rule-regex{
+.template-rule-file-regex{
     border-left-color: #967ADC;
 }
 
-.template-rule-regex .h3{
+.template-rule-file-regex .h4{
     color: #967ADC;
 }
 
-.template-rule-regex .label{
+.template-rule-file-regex .label{
     background-color: #967ADC;
+}
+
+.template-rule-site-address{
+    border-left-color: #F6BB42;
+}
+
+.template-rule-site-address .h4{
+    color: #F6BB42;
+}
+
+.template-rule-site-address .label{
+    background-color: #F6BB42;
+}
+
+.template-rule-site-regex{
+    border-left-color: #D770AD;
+}
+
+.template-rule-site-regex .h4{
+    color: #D770AD;
+}
+
+.template-rule-site-regex .label{
+    background-color: #D770AD;
 }
 
 .template-editor{
     border-left-color: #D9534F;
+}
+
+.template-editor .dropdown-menu li a{
+	font-size: 0.85em;
+}
+
+.template-editor .dropdown-menu li a[active]{
+	color: #8CC152;
 }
 
 .template-notify{
