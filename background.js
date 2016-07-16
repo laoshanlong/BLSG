@@ -64,7 +64,18 @@ function rqstGetInit(){
 }
 
 function rqstAddRule(param){
-  ruleCollection.push(param.rule);
+  if(param.parent < 0){
+    ruleCollection.push(param.rule);
+  }
+  else{
+    let parent = ruleCollection[param.parent];
+
+    if(parent["childCollection"] === undefined){
+      parent["childCollection"] = [];
+    }
+
+    parent.childCollection.push(param.rule);
+  }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
     if(chrome.runtime.lastError){
@@ -79,18 +90,34 @@ function rqstAddRule(param){
       return;
     }
 
-    chrome.runtime.sendMessage({command: "ackAddRule", state: "success", param: {rule: param.rule}});
+    chrome.runtime.sendMessage({command: "ackAddRule", state: "success", param: {parent: param.parent, rule: param.rule}});
   });
 }
 
 function rqstEditRule(param, sendResponse){
-  let old = ruleCollection[param.index];
+  let old;
 
-  ruleCollection[param.index] = param.rule;
+  if(param.parent < 0 ){
+    old = ruleCollection[param.index];
+    ruleCollection[param.index] = param.rule;
+
+    if(old["childCollection"] !== undefined){
+      ruleCollection[param.index]["childCollection"] = old.childCollection;
+    }
+  }
+  else{
+    old = ruleCollection[param.parent].childCollection[param.index];
+    ruleCollection[param.parent].childCollection[param.index] = param.rule;
+  }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
     if(chrome.runtime.lastError){
-      ruleCollection[param.index] = old;
+      if(param.parent < 0 ){
+        ruleCollection[param.index] = old;
+      }
+      else{
+        ruleCollection[param.parent].childCollection[param.index] = old;
+      }
 
       if(debug){
         console.error(chrome.runtime.lastError);
@@ -101,16 +128,28 @@ function rqstEditRule(param, sendResponse){
       return;
     }
 
-    chrome.runtime.sendMessage({command: "ackEditRule", state: "success", param: {index: param.index, rule: param.rule}});
+    chrome.runtime.sendMessage({command: "ackEditRule", state: "success", param: {parent: param.parent, index: param.index, rule: param.rule}});
   });
 }
 
 function rqstDeleteRule(param, sendResponse){
-  let remove = ruleCollection.splice(param.index, 1)[0];
+  let remove;
+
+  if(param.parent < 0 ){
+    remove = ruleCollection.splice(param.index, 1)[0];
+  }
+  else{
+    remove = ruleCollection[param.parent].childCollection.splice(param.index, 1)[0];
+  }
 
   chrome.storage.local.set({"ruleCollection": ruleCollection}, function(){
     if(chrome.runtime.lastError){
-      ruleCollection.splice(param.index, 0, remove);
+      if(param.parent < 0 ){
+        ruleCollection.splice(param.index, 0, remove);
+      }
+      else{
+        ruleCollection[param.parent].childCollection.splice(param.index, 0, remove);
+      }
 
       if(debug){
         console.error(chrome.runtime.lastError);
@@ -121,7 +160,7 @@ function rqstDeleteRule(param, sendResponse){
       return;
     }
 
-    chrome.runtime.sendMessage({command: "ackDeleteRule", state: "success", param: {index: param.index}});
+    chrome.runtime.sendMessage({command: "ackDeleteRule", state: "success", param: {parent: param.parent, index: param.index}});
   });
 }
 

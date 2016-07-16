@@ -132,6 +132,16 @@ function ackGetInit(state, param){
   if(param.ruleCollection.length > 0){
     for(let rule of param.ruleCollection){
       createRule().inject(rule).appendTo("#rule-collection").animateCss("fadeInLeft");
+
+      $("<div></div>").addClass("child-collection").appendTo("#rule-collection");
+
+      if(rule["childCollection"] === undefined){
+        continue;
+      }
+
+      for(let child of rule.childCollection){
+        createRule().addClass("template-child").inject(child).appendTo(".child-collection:last").animateCss("fadeInLeft");
+      }
     }
   }
   else{
@@ -140,7 +150,14 @@ function ackGetInit(state, param){
 }
 
 function ackAddRule(state, param){
-  let editor = $("#rule-collection > .template-editor:last");
+  let editor
+
+  if(param.parent < 0){
+    editor = $("#rule-collection > .template-editor:last");
+  }
+  else{
+    editor = $("#rule-collection > .template:not(.template-child)").eq(param.parent).next().find(".template-editor:last");
+  }
 
   if(state == "error"){
     editor.find("[name='btn-submit']").removeAttr("disabled");
@@ -149,13 +166,33 @@ function ackAddRule(state, param){
     return;
   }
 
-  exchangeFromTo(editor, createRule().inject(param.rule));
+  let rule = editor.hasClass("template-child") == false ? createRule():createRule().addClass("template-child");
 
-  $("#navbar-bottom").removeAttr("disabled");
+  exchangeFromTo(editor, rule.inject(param.rule));
+
+  if(param.parent < 0){
+    $("<div></div>").addClass("child-collection").appendTo("#rule-collection");
+
+    $("#navbar-bottom").removeAttr("disabled");
+  }
+  else{
+    let parent = rule.parent().prev();
+
+    parent.find("[name='btn-edit']").removeAttr("disabled");
+    parent.find("[name='btn-delete']").removeAttr("disabled");
+    parent.find("[name='btn-add-child']").removeAttr("disabled");
+  }
 }
 
 function ackEditRule(state, param){
-  let editor = $("#rule-collection > .template").eq(param.index);
+  let editor;
+
+  if(param.parent < 0){
+    editor = $("#rule-collection > .template:not(.template-child)").eq(param.index);
+  }
+  else{
+    editor = $("#rule-collection > .template:not(.template-child)").eq(param.parent).next().children().eq(param.index);
+  }
 
   if(state == "error"){
     editor.find("[name='btn-submit']").removeAttr("disabled");
@@ -164,11 +201,20 @@ function ackEditRule(state, param){
     return;
   }
 
-  exchangeFromTo(editor, createRule().inject(param.rule));
+  let rule = editor.hasClass("template-child") == false ? createRule():createRule().addClass("template-child");
+
+  exchangeFromTo(editor, rule.inject(param.rule));
 }
 
 function ackDeleteRule(state, param){
-  let rule = $("#rule-collection > .template").eq(param.index);
+  let rule;
+
+  if(param.parent < 0){
+    rule = $("#rule-collection > .template:not(template-child)").eq(param.index);
+  }
+  else{
+    rule = $("#rule-collection > .template:not(template-child)").eq(param.parent).next().children().eq(param.index);
+  }
 
   if(state == "error"){
     rule.find("[name='btn-edit']").removeAttr("disabled");
@@ -177,7 +223,13 @@ function ackDeleteRule(state, param){
     return;
   }
 
-  if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
+  if(rule.hasClass("template-child") == false){
+    rule.next().animateCss("fadeOutRight", function(){
+      rule.next().detach();
+    });
+  }
+
+  if($("#rule-collection").children(":not(.template-notify, .child-collection, .fadeOutRight)").length > 1){
     rule.animateCss("fadeOutRight", function(){
       rule.detach();
     });
@@ -288,15 +340,25 @@ function onSubmit(event){
   event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
   event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
+  let parent;
+  let index;
+
+  if(event.data.editor.hasClass("template-child") == false){
+    parent = -1;
+    index = $("#rule-collection > .template").index(event.data.editor);
+  }
+  else{
+    parent = $("#rule-collection > .template").index(event.data.editor.parent().prev());
+    index = event.data.editor.parent().children().index(event.data.editor);
+  }
+
   if(data.state == "new"){
     data.state = "contain";
 
-    chrome.runtime.sendMessage({command: "rqstAddRule", param: {rule: data}});
+    chrome.runtime.sendMessage({command: "rqstAddRule", param: {parent: parent, rule: data}});
   }
   else{
-    let index = $("#rule-collection > .template").index(event.data.editor);
-
-    chrome.runtime.sendMessage({command: "rqstEditRule", param: {index: index, rule: data}});
+    chrome.runtime.sendMessage({command: "rqstEditRule", param: {parent: parent, index: index, rule: data}});
   }
 }
 
@@ -314,7 +376,7 @@ function onCancel(event){
   else{
     $("#navbar-bottom").removeAttr("disabled");
 
-    if($("#rule-collection").children(":not(.template-notify) :not(.fadeOutRight)").length > 1){
+  if($("#rule-collection").children(":not(.template-notify, .fadeOutRight)").length > 1){
       event.data.editor.animateCss("fadeOutRight", function(){
         event.data.editor.detach();
       });
@@ -342,6 +404,10 @@ function onEdit(event){
 
   let editor = createEditor().inject(event.data.rule.extract());
 
+  if(event.data.rule.hasClass("template-child") == true){
+    editor.addClass("template-child");
+  }
+
   exchangeFromTo(event.data.rule, editor);
 
   let container = $("#rule-collection")
@@ -354,9 +420,19 @@ function onDelete(event){
   event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
   event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
-  let index = $("#rule-collection > .template").index(event.data.rule);
+  let parent;
+  let index;
 
-  chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {index: index}});
+  if(event.data.rule.hasClass("template-child") == false){
+    parent = -1;
+    index = $("#rule-collection > .template").index(event.data.rule);
+  }
+  else{
+    parent = $("#rule-collection > .template").index(event.data.rule.parent().prev());
+    index = event.data.rule.parent().children().index(event.data.rule);
+  }
+
+  chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {parent: parent, index: index}});
 }
 
 function onAddNew(){
@@ -383,7 +459,7 @@ function onAddChild(event){
 
   let editor = createEditor().addClass("template-child").inject({category: "extension", rule: "", path: "", state: "new"}).attr("parent", $("#rule-collection > .template").index(event.data.rule));
 
-  editor.insertAfter(event.data.rule).animateCss("fadeInLeft");;
+  editor.appendTo(event.data.rule.next()).animateCss("fadeInLeft");;
 
   let container = $("#rule-collection")
 
