@@ -279,7 +279,7 @@ function createEditor(){
     let category = $(element);
 
     category.on("click", function(){
-      if(category.attr("active") !== undefined){
+      if(category.attr("active") !== undefined || category.parent().hasClass("disabled") == true){
         return;
       }
 
