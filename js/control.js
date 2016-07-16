@@ -157,7 +157,10 @@ function ackGetInit(state, param){
       $("<div></div>").addClass("child-collection").appendTo("#rule-collection");
 
       for(let child of rule.children){
-        createRule().addClass("template-child").inject(child).appendTo(".child-collection:last").animateCss("fadeInLeft");
+        let created = createRule().addClass("template-child").inject(child).appendTo(".child-collection:last");
+
+        created.find("[name='path-parent']").text("/" + rule.path + "/");
+        created.animateCss("fadeInLeft");
       }
     }
   }
@@ -195,6 +198,8 @@ function ackAddRule(state, param){
   else{
     let parent = rule.parent().prev();
 
+    rule.find("[name='path-parent']").text("/" + parent.extract().path + "/");
+
     parent.find("[name='btn-edit']").removeAttr("disabled");
     parent.find("[name='btn-delete']").removeAttr("disabled");
     parent.find("[name='btn-add-child']").removeAttr("disabled");
@@ -206,6 +211,8 @@ function ackEditRule(state, param){
 
   if(param.parent < 0){
     editor = $("#rule-collection > .template:not(.template-child)").eq(param.index);
+
+    editor.next().children().find("[name='path-parent']").text("/" + param.rule.path + "/");
   }
   else{
     editor = $("#rule-collection > .template:not(.template-child)").eq(param.parent).next().children().eq(param.index);
@@ -246,7 +253,7 @@ function ackDeleteRule(state, param){
     });
   }
 
-  if($("#rule-collection").children(":not(.template-notify, .child-collection, .fadeOutRight)").length > 1){
+  if(rule.hasClass("template-child") == true || $("#rule-collection").children(":not(.template-notify, .child-collection, .fadeOutRight)").length > 1){
     rule.animateCss("fadeOutRight", function(){
       rule.detach();
     });
@@ -421,10 +428,8 @@ function onCancel(event){
     }
   }
 
-  let parent = event.data.editor.attr("parent");
-
-  if(parent !== undefined){
-    parent = $("#rule-collection > .template").eq(parent);
+  if(event.data.editor.hasClass("template-child") == true){
+    let parent = event.data.editor.parent().prev();
 
     parent.find("[name='btn-edit']").removeAttr("disabled");
     parent.find("[name='btn-delete']").removeAttr("disabled");

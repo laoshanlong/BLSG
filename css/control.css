@@ -72,6 +72,14 @@ a[role="button"]{
 	max-width: 335px;
 }
 
+.template-rule .path-parent-group{
+	display: none;
+}
+
+.template-child .path-parent-group{
+	display: inline;
+}
+
 .template .rule-prefix, .rule-suffix{
 	padding: 0px 2px 0px 2px;
 	color: #AAB2BD;
@@ -102,15 +110,20 @@ a[role="button"]{
 }
 
 .template-rule-file-extension{
-    border-left-color: #5D9CEC;
+    border-left-color: #4A89DC;
 }
 
 .template-rule-file-extension .h4{
-    color: #5D9CEC;
+    color: #4A89DC;
 }
 
 .template-rule-file-extension .label{
-    background-color: #5D9CEC;
+    background-color: #4A89DC;
+}
+
+.template-rule-file-extension .path{
+    color: #5D9CEC;
+		font-weight: bold;
 }
 
 .template-rule-file-regex{
@@ -125,6 +138,11 @@ a[role="button"]{
     background-color: #967ADC;
 }
 
+.template-rule-file-regex .path{
+    color: #AC92EC;
+		font-weight: bold;
+}
+
 .template-rule-site-address{
     border-left-color: #F6BB42;
 }
@@ -137,6 +155,11 @@ a[role="button"]{
     background-color: #F6BB42;
 }
 
+.template-rule-site-address .path{
+    color: #FFCE54;
+		font-weight: bold;
+}
+
 .template-rule-site-regex{
     border-left-color: #D770AD;
 }
@@ -147,6 +170,11 @@ a[role="button"]{
 
 .template-rule-site-regex .label{
     background-color: #D770AD;
+}
+
+.template-rule-site-regex .path{
+    color: #EC87C0;
+		font-weight: bold;
 }
 
 .template-editor{
