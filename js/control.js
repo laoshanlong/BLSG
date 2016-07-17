@@ -1,4 +1,6 @@
 let debug = false;
+let invalidPathLetterRegexp = /[\\/:*?"<>|]/g
+let invalidAddressRegexp = /^https?:\/\//g
 
 /* Extend */
 $.fn.extend({
@@ -167,7 +169,7 @@ function ackGetInit(state, param){
     }
   }
   else{
-    createNotify("EMPTY").appendTo("#rule-collection").animateCss("fadeInLeft");
+    createNotify("EMPTY, :(").appendTo("#rule-collection").animateCss("fadeInLeft");
   }
 }
 
@@ -267,7 +269,7 @@ function ackDeleteRule(state, param){
     });
   }
   else{
-    exchangeFromTo(rule, createNotify("EMPTY"));
+    exchangeFromTo(rule, createNotify("EMPTY, :("));
   }
 }
 
@@ -307,8 +309,14 @@ function createNotify(message, description){
 function createEditor(){
   let editor = $("#template > .template-editor").clone();
 
-  editor.find("[name='btn-submit']").on("click", {editor: editor}, onSubmit);
-  editor.find("[name='btn-cancel']").on("click", {editor: editor}, onCancel);
+  editor.find("[name='btn-submit']").on("click", function(){
+    onSubmit(editor);
+  });
+
+  editor.find("[name='btn-cancel']").on("click", function(){
+    onCancel(editor);
+  });
+
   editor.find("[name|='dropdown-category']").each(function(index, element){
     let category = $(element);
 
@@ -342,7 +350,17 @@ function createEditor(){
       }
 
       editor.find("[name='" + inputGroupName + "']").removeClass("hidden").find("input").val(edited);
+      editor.find("[name|='input-rule']:not(.hidden)").parent().removeClass("has-error");
+      editor.find("[name='help-rule']").text("");
     });
+  });
+
+  editor.find("input").on("keypress", function(event){
+    if(event.keyCode != 13){
+        return;
+    }
+
+    onSubmit(editor);
   });
 
   return editor;
@@ -351,15 +369,24 @@ function createEditor(){
 function createRule(){
   let rule = $("#template > .template-rule").clone();
 
-  rule.find("[name='btn-edit']").on("click", {rule: rule}, onEdit);
-  rule.find("[name='btn-delete']").on("click", {rule: rule}, onDelete);
-  rule.find("[name='btn-add-child']").on("click", {rule: rule}, onAddChild);
+  rule.find("[name='btn-edit']").on("click", function(){
+    onEdit(rule);
+  });
+
+  rule.find("[name='btn-delete']").on("click", function(){
+    onDelete(rule);
+  });
+
+
+  rule.find("[name='btn-add-child']").on("click", function(){
+    onAddChild(rule);
+  });
 
   return rule;
 }
 
-function onSubmit(event){
-  let data = event.data.editor.extract();
+function onSubmit(editor){
+  let data = editor.extract();
 
   if(data === undefined){
     return;
@@ -367,41 +394,71 @@ function onSubmit(event){
 
   let hasError = false;
 
-  if(data.rule === undefined || data.rule === ""){
-    event.data.editor.find("[name|='input-rule']:first").parent().addClass("has-error")
+  if(data.rule === undefined || data.rule == ""){
+    editor.find("[name='help-rule']").text("is empty");
 
     hasError = true;
   }
+  else if(data.category == "file-extension" && data.rule.startsWith(".") == true){
+    editor.find("[name='help-rule']").text("remove first \'.\'");
+
+    hasError = true;
+  }
+  else if((data.category == "file-extension" || data.category == "site-address") && data.rule.includes(" ") == true){
+    editor.find("[name='help-rule']").text("remove \'white space\'");
+
+    hasError = true;
+  }
+  else if(data.category == "site-address" && invalidAddressRegexp.test(data.rule) == true){
+    editor.find("[name='help-rule']").text("remove \'" + data.rule.match(invalidAddressRegexp)[0] + "\'");
+
+    hasError = true
+  }
+
+  if(hasError == true){
+    editor.find("[name|='input-rule']:not(.hidden)").parent().addClass("has-error");
+  }
   else{
-    event.data.editor.find("[name|='input-rule']:first").parent().removeClass("has-error")
+    editor.find("[name|='input-rule']:not(.hidden)").parent().removeClass("has-error");
+    editor.find("[name='help-rule']").text("");
   }
 
   if(data.path === undefined || data.path === ""){
-    event.data.editor.find("[name='input-path']").parent().addClass("has-error")
+    editor.find("[name='help-path']").text("is empty");
 
     hasError = true;
   }
+  else if(invalidPathLetterRegexp.test(data.path) == true){
+    editor.find("[name='help-path']").text("remove \'\\ / : * ? \" < > |\'");
+
+    hasError = true;
+  }
+
+  if(hasError == true){
+    editor.find("[name='input-path']").parent().addClass("has-error");
+  }
   else{
-    event.data.editor.find("[name='input-path']").parent().removeClass("has-error")
+    editor.find("[name='input-path']").parent().removeClass("has-error");
+    editor.find("[name='help-path']").text("");
   }
 
   if(hasError == true){
     return;
   }
 
-  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
-  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
+  editor.find("[name='btn-submit']").attr("disabled", "disabled");
+  editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
   let parent;
   let index;
 
-  if(event.data.editor.hasClass("template-child") == false){
+  if(editor.hasClass("template-child") == false){
     parent = -1;
-    index = $("#rule-collection > .template").index(event.data.editor);
+    index = $("#rule-collection > .template").index(editor);
   }
   else{
-    parent = $("#rule-collection > .template").index(event.data.editor.parent().prev());
-    index = event.data.editor.parent().children().index(event.data.editor);
+    parent = $("#rule-collection > .template").index(editor.parent().prev());
+    index = editor.parent().children().index(editor);
   }
 
   if(data.state == "new"){
@@ -414,32 +471,32 @@ function onSubmit(event){
   }
 }
 
-function onCancel(event){
-  event.data.editor.find("[name='btn-submit']").attr("disabled", "disabled");
-  event.data.editor.find("[name='btn-cancel']").attr("disabled", "disabled");
+function onCancel(editor){
+  editor.find("[name='btn-submit']").attr("disabled", "disabled");
+  editor.find("[name='btn-cancel']").attr("disabled", "disabled");
 
-  let data = event.data.editor.extract();
+  let data = editor.extract();
 
   if(data.state === "contain"){
-    let rule = event.data.editor.hasClass("template-child") == false ? createRule() : createRule().addClass("template-child");
+    let rule = editor.hasClass("template-child") == false ? createRule() : createRule().addClass("template-child");
 
-    exchangeFromTo(event.data.editor, rule.inject(data));
+    exchangeFromTo(editor, rule.inject(data));
   }
   else{
     $("#navbar-bottom").removeAttr("disabled");
 
   if($("#rule-collection").children(":not(.template-notify, .fadeOutRight)").length > 1){
-      event.data.editor.animateCss("fadeOutRight", function(){
-        event.data.editor.detach();
+      editor.animateCss("fadeOutRight", function(){
+        editor.detach();
       });
     }
     else{
-      exchangeFromTo(event.data.editor, createNotify("EMPTY"));
+      exchangeFromTo(editor, createNotify("EMPTY, :("));
     }
   }
 
-  if(event.data.editor.hasClass("template-child") == true){
-    let parent = event.data.editor.parent().prev();
+  if(editor.hasClass("template-child") == true){
+    let parent = editor.parent().prev();
 
     parent.find("[name='btn-edit']").removeAttr("disabled");
     parent.find("[name='btn-delete']").removeAttr("disabled");
@@ -447,39 +504,41 @@ function onCancel(event){
   }
 }
 
-function onEdit(event){
-  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
+function onEdit(rule){
+  rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
-  let editor = createEditor().inject(event.data.rule.extract());
+  let editor = createEditor().inject(rule.extract());
 
-  if(event.data.rule.hasClass("template-child") == true){
+  if(rule.hasClass("template-child") == true){
     editor.addClass("template-child");
   }
 
-  exchangeFromTo(event.data.rule, editor);
+  exchangeFromTo(rule, editor);
+
+  editor.find("input:not(.hidden)").filter(":first").focus();
 
   let container = $("#rule-collection")
 
   container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
 }
 
-function onDelete(event){
-  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
+function onDelete(rule){
+  rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
   let parent;
   let index;
 
-  if(event.data.rule.hasClass("template-child") == false){
+  if(rule.hasClass("template-child") == false){
     parent = -1;
-    index = $("#rule-collection > .template").index(event.data.rule);
+    index = $("#rule-collection > .template").index(rule);
   }
   else{
-    parent = $("#rule-collection > .template").index(event.data.rule.parent().prev());
-    index = event.data.rule.parent().children().index(event.data.rule);
+    parent = $("#rule-collection > .template").index(rule.parent().prev());
+    index = rule.parent().children().index(rule);
   }
 
   chrome.runtime.sendMessage({command: "rqstDeleteRule", param: {parent: parent, index: index}});
@@ -497,19 +556,21 @@ function onAddNew(){
     editor.appendTo("#rule-collection").animateCss("fadeInLeft");
   }
 
+  editor.find("input:not(.hidden)").filter(":first").focus();
+
   let container = $("#rule-collection")
 
   container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
 }
 
-function onAddChild(event){
-  event.data.rule.find("[name='btn-edit']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-delete']").attr("disabled", "disabled");
-  event.data.rule.find("[name='btn-add-child']").attr("disabled", "disabled");
+function onAddChild(rule){
+  rule.find("[name='btn-edit']").attr("disabled", "disabled");
+  rule.find("[name='btn-delete']").attr("disabled", "disabled");
+  rule.find("[name='btn-add-child']").attr("disabled", "disabled");
 
   let editor = createEditor().addClass("template-child")
 
-  if(event.data.rule.extract().category.startsWith("file-") == true){
+  if(rule.extract().category.startsWith("file-") == true){
     editor.inject({category: "site-address", rule: "", path: "", children: [], state: "new"});
     editor.find(".dropdown-menu > li > [name|='dropdown-category-file']").parent().addClass("disabled");
   }
@@ -518,7 +579,9 @@ function onAddChild(event){
     editor.find(".dropdown-menu > li > [name|='dropdown-category-site']").parent().addClass("disabled");
   }
 
-  editor.appendTo(event.data.rule.next()).animateCss("fadeInLeft");;
+  editor.appendTo(rule.next()).animateCss("fadeInLeft");
+
+  editor.find("input:not(.hidden)").filter(":first").focus();
 
   let container = $("#rule-collection")
 

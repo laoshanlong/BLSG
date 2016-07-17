@@ -83,7 +83,6 @@
 				<p>
 					<code name="path-parent">/</code> <span class="path" name="path">PATH</span>
 				</p>
-				<!--<a class="btn btn-danger btn-xs btn-block button-bottom" role="button" name="btn-add-child">ADD CHILD</a>-->
 			</div>
 
 			<div class="template template-editor">
@@ -103,7 +102,7 @@
 					</ul>
 				</div>
 				<form style="margin-top: 5px; margin-bottom: 0px;">
-					<div class="form-group">
+					<div class="form-group" style="margin-bottom: 5px;">
 						<div class="input-group" name="input-rule-extension">
 							<span class="input-group-addon"><strong>.</strong></span>
 							<input class="form-control" type="text" placeholder="file extension(.zip or etc)"/>
@@ -117,9 +116,11 @@
 							<input class="form-control" type="text" placeholder="regular expression"/>
 							<span class="input-group-addon"><strong>/g</strong></span>
 						</div>
+						<span class="help-block" name="help-rule"></span>
 					</div>
 					<div class="form-group" style="margin-bottom: 0px;">
 						<input class="form-control" name="input-path" type="text" placeholder="path"/>
+						<span class="help-block" name="help-path"></span>
 					</div>
 				</form>
 			</div>

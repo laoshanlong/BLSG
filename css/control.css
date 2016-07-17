@@ -189,6 +189,10 @@ a[role="button"]{
 	color: #8CC152;
 }
 
+.template-editor .help-block{
+	margin: 0px;
+}
+
 .template-notify{
 	border: 0px;
 }
