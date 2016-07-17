@@ -605,10 +605,14 @@ function setEnabled(enabled){
   if(enabled == true){
     $("#btn-apply-active").removeClass("hidden");
     $("#btn-apply-inactive").addClass("hidden");
+
+    chrome.browserAction.setIcon({path: "img/icon_128.png"});
   }
   else{
     $("#btn-apply-active").addClass("hidden");
     $("#btn-apply-inactive").removeClass("hidden");
+
+    chrome.browserAction.setIcon({path: "img/icon_128_off.png"});
   }
 }
 

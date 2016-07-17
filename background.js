@@ -19,6 +19,8 @@ chrome.storage.local.get(["enabled", "ruleCollection"], function(items){
     enabled = true;
   }
 
+  chrome.browserAction.setIcon({path: enabled ? "img/icon.png" : "img/icon_off.png"});
+
   ruleCollection = items["ruleCollection"];
 
   if(ruleCollection === undefined){
@@ -183,6 +185,8 @@ function rqstSetEnabled(param){
 
       return;
     }
+
+    chrome.browserAction.setIcon({path: enabled ? "img/icon.png" : "img/icon_off.png"});
 
     chrome.runtime.sendMessage({command: "ackSetEnabled", state: "success", param: {enabled: enabled}});
   });
