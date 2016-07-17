@@ -1,13 +1,13 @@
-# ㅂㄹㅅㄱ, chrome web extension for download path suggestion.
+## ㅂㄹㅅㄱ, chrome web extension for download path suggestion.
 
-## Current version: 1.0.0
+#### Current version: 1.0.0
 
-# Author
+## Author
 
-## laoshanlong
+#### laoshanlong
 
 Twitter [@rabbit_airu](https://twitter.com/rabbit_airu)
 
-# License
+## License
 
 wtfpl
