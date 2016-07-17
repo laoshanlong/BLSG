@@ -212,26 +212,20 @@ a[role="button"]{
 	z-index: 1031;
 }
 
-.popup .panel{
+.popup-window{
 	margin: 15% 10% 0% 10%;
-	border-radius: 0px;
+	background-color: #FFFFFF;
 }
 
-.popup .panel .header{
-	color: #8C8C8C;
+.popup-window .header{
+	padding: 10px 10px 10px 15px;
+	color: #DA4453;
 	background-color: #333333;
 }
 
-.popup .panel .body{
-	padding: 10px;
-}
-
-.popup .panel p{
-	margin: 5px 0px 10px 0px;
-}
-
-.popup .panel .h2{
-	margin-left: 10px;
+.popup-window .body{
+	padding: 10px 10px 10px 15px;
+	word-wrap: break-word;
 }
 
 /* Id */

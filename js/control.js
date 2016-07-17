@@ -132,6 +132,8 @@ chrome.runtime.onMessage.addListener(function(request, sender){
   }
 });
 
+$(".popup").on("click", hideErrorPopup);
+
 $("#btn-apply-active").on("click", function(){
   chrome.runtime.sendMessage({command: "rqstSetEnabled", param: {enabled: false}});
 });
@@ -183,6 +185,8 @@ function ackAddRule(state, param){
     editor.find("[name='btn-submit']").removeAttr("disabled");
     editor.find("[name='btn-cancel']").removeAttr("disabled");
 
+    showErrorPopup("add rule: " + param.error);
+
     return;
   }
 
@@ -222,6 +226,8 @@ function ackEditRule(state, param){
     editor.find("[name='btn-submit']").removeAttr("disabled");
     editor.find("[name='btn-cancel']").removeAttr("disabled");
 
+    showErrorPopup("edit rule: " + param.error);
+
     return;
   }
 
@@ -244,6 +250,8 @@ function ackDeleteRule(state, param){
     rule.find("[name='btn-edit']").removeAttr("disabled");
     rule.find("[name='btn-delete']").removeAttr("disabled");
 
+    showErrorPopup("delete rule: " + param.error);
+
     return;
   }
 
@@ -265,6 +273,8 @@ function ackDeleteRule(state, param){
 
 function ackSetEnabled(state, param){
   if(state == "error"){
+    showErrorPopup("set enabled: " + param.error);
+
     return;
   }
 
@@ -513,6 +523,19 @@ function onAddChild(event){
   let container = $("#rule-collection")
 
   container.animate({scrollTop: editor.offset().top - container.offset().top + container.scrollTop()}, 500);
+}
+
+function showErrorPopup(message){
+  $(".popup").removeClass("hidden");
+  $(".popup").find("[name='error-message']").text(message);
+
+  $(".popup > .popup-window").animateCss("fadeInLeft");
+}
+
+function hideErrorPopup(){
+  $(".popup > .popup-window").animateCss("fadeOutRight", function(){
+    $(".popup").addClass("hidden");
+  });
 }
 
 function setEnabled(enabled){
