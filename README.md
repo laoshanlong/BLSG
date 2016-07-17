@@ -1,6 +1,6 @@
 ## ㅂㄹㅅㄱ
 
-#### chrome web extension for download path suggestion.
+#### chrome web extenstion for suggesting download path..
 
 Current version: 1.0.0
 

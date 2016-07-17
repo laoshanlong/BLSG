@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-
   "name": "ㅂㄹㅅㄱ",
-  "description": "chrome web extenstion for download path suggestion.",
   "version": "1.0.0",
+
+  "description": "chrome web extenstion for suggesting download path.",
   "icons": {
     "16": "img/icon_16.png",
     "48": "img/icon_48.png",
@@ -14,8 +14,13 @@
     "default_icon": "img/icon.png",
     "default_popup": "control.html"
   },
+
+  "author": "laoshanlong",
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": ["downloads", "storage"]
+
+  "permissions": ["downloads", "storage"],
+  "short_name": "ㅂㄹㅅㄱ",
+  "version_name": "1.0.0"
 }
