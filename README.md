@@ -8,7 +8,7 @@ Current version: 1.0.0
 
 #### laoshanlong
 
-EMail [nokdk2@gmail.com](nokdk2@gmail.com)
+Email [nokdk2@gmail.com](nokdk2@gmail.com)
 
 ## License
 
