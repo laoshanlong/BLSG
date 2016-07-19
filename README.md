@@ -8,7 +8,7 @@ Current version: 1.0.0
 
 #### laoshanlong
 
-Twitter [@rabbit_airu](https://twitter.com/rabbit_airu)
+EMail [nokdk2@gmail.com](nokdk2@gmail.com)
 
 ## License
 
